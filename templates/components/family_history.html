@@ -6,7 +6,7 @@
       {% for member in family_history %}
       <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
         <div>
-          <h4 class="font-medium text-gray-900">{{ member.relationship }} - {{ member.name }}</h4>
+          <h4 class="font-medium text-gray-900">{{ member.relation }} (Age: {{ member.age }})</h4>
           <p class="text-sm text-gray-600">{{ member.condition }}</p>
         </div>
         <form method="POST" action="{{ url_for('remove_family_member') }}" class="inline">
@@ -23,12 +23,8 @@
     <h3 class="text-xl font-semibold text-gray-900 mb-6">Add Family Member</h3>
     <form method="POST" action="{{ url_for('add_family_member') }}" class="grid grid-cols-1 md:grid-cols-2 gap-6">
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2">Name</label>
-        <input type="text" name="name" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" required>
-      </div>
-      <div>
         <label class="block text-sm font-medium text-gray-700 mb-2">Relationship</label>
-        <select name="relationship" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" required>
+        <select name="relation" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" required>
           <option value="">Select Relationship</option>
           <option value="Mother">Mother</option>
           <option value="Father">Father</option>
@@ -40,6 +36,10 @@
           <option value="Uncle">Uncle</option>
           <option value="Cousin">Cousin</option>
         </select>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Age</label>
+        <input type="number" name="age" min="0" max="120" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" required>
       </div>
       <div class="md:col-span-2">
         <label class="block text-sm font-medium text-gray-700 mb-2">Medical Condition</label>
