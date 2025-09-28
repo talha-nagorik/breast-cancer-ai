@@ -1,0 +1,540 @@
+{% extends "base.html" %}
+
+{% block title %}Wisconsin Dataset Analytics - AI Medical Records{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 pt-20">
+    <div class="max-w-7xl mx-auto px-8 py-8">
+        <!-- Navigation Breadcrumb -->
+        <div class="mb-4">
+            <nav class="flex" aria-label="Breadcrumb">
+                <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                    <li class="inline-flex items-center">
+                        <a href="/dashboard" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600">
+                            <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path>
+                            </svg>
+                            Dashboard
+                        </a>
+                    </li>
+                    <li>
+                        <div class="flex items-center">
+                            <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2">Wisconsin Analytics</span>
+                        </div>
+                    </li>
+                </ol>
+            </nav>
+        </div>
+
+        <!-- Page Header -->
+        <div class="bg-white shadow-sm border-b border-gray-200 mb-8">
+            <div class="px-6 py-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h1 class="text-3xl font-bold text-gray-900">Wisconsin Dataset Analytics</h1>
+                        <p class="text-gray-600 mt-1">Comprehensive analysis of the Wisconsin Breast Cancer Dataset</p>
+                    </div>
+                    <div class="flex space-x-3">
+                        <a href="/wisconsin-prediction" 
+                            class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
+                            New Analysis
+                        </a>
+                        <button id="refresh-analytics-btn" 
+                            class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors">
+                            Refresh Data
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dataset Overview Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-8 h-8 bg-blue-100 rounded-md flex items-center justify-center">
+                            <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-500">Total Samples</p>
+                        <p class="text-2xl font-semibold text-gray-900">{{ dataset_stats.dataset_info.total_samples }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-8 h-8 bg-green-100 rounded-md flex items-center justify-center">
+                            <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-500">Benign Cases</p>
+                        <p class="text-2xl font-semibold text-gray-900">{{ dataset_stats.class_distribution.benign_samples }}</p>
+                        <p class="text-sm text-gray-500">{{ dataset_stats.class_distribution.benign_percentage|round(1) }}%</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-8 h-8 bg-red-100 rounded-md flex items-center justify-center">
+                            <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-500">Malignant Cases</p>
+                        <p class="text-2xl font-semibold text-gray-900">{{ dataset_stats.class_distribution.malignant_samples }}</p>
+                        <p class="text-sm text-gray-500">{{ dataset_stats.class_distribution.malignant_percentage|round(1) }}%</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-8 h-8 bg-purple-100 rounded-md flex items-center justify-center">
+                            <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-500">Features</p>
+                        <p class="text-2xl font-semibold text-gray-900">{{ dataset_stats.dataset_info.total_features }}</p>
+                        <p class="text-sm text-gray-500">30 computed features</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ensemble Status -->
+        <div class="bg-white rounded-lg shadow mb-8">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h2 class="text-xl font-semibold text-gray-900">Ensemble Model Status</h2>
+            </div>
+            <div class="p-6">
+                {% if ensemble_status %}
+                <div class="flex items-center mb-4">
+                    <div class="flex-shrink-0">
+                        <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                            <svg class="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="ml-3">
+                        <h3 class="text-lg font-medium text-gray-900">Models Loaded Successfully</h3>
+                        <p class="text-sm text-gray-500">Wisconsin ensemble is ready for predictions</p>
+                    </div>
+                </div>
+                {% else %}
+                <div class="flex items-center mb-4">
+                    <div class="flex-shrink-0">
+                        <div class="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center">
+                            <svg class="w-5 h-5 text-yellow-600" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="ml-3">
+                        <h3 class="text-lg font-medium text-gray-900">Models Not Loaded</h3>
+                        <p class="text-sm text-gray-500">Please train the ensemble model first</p>
+                    </div>
+                </div>
+                {% endif %}
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <h4 class="text-sm font-medium text-gray-900 mb-2">Feature Groups</h4>
+                        <div class="space-y-1 text-sm text-gray-600">
+                            <div class="flex justify-between">
+                                <span>Mean Features:</span>
+                                <span class="font-medium">{{ feature_groups.mean|length }}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Standard Error:</span>
+                                <span class="font-medium">{{ feature_groups.se|length }}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Worst Features:</span>
+                                <span class="font-medium">{{ feature_groups.worst|length }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <h4 class="text-sm font-medium text-gray-900 mb-2">Dataset Source</h4>
+                        <div class="text-sm text-gray-600">
+                            <p class="font-medium">UCI ML Repository</p>
+                            <p>Wisconsin Breast Cancer (Diagnostic)</p>
+                            <a href="https://archive.ics.uci.edu/ml/datasets/Breast+Cancer+Wisconsin+(Diagnostic)" 
+                               class="text-blue-600 hover:text-blue-800" target="_blank">
+                                View Dataset →
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <h4 class="text-sm font-medium text-gray-900 mb-2">Clinical Context</h4>
+                        <div class="text-sm text-gray-600">
+                            <p>Features computed from digitized images of fine needle aspirate (FNA) of breast mass</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Feature Analysis -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            <!-- Feature Groups Overview -->
+            <div class="bg-white rounded-lg shadow">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h2 class="text-xl font-semibold text-gray-900">Feature Groups</h2>
+                </div>
+                <div class="p-6">
+                    <div class="space-y-6">
+                        <!-- Mean Features -->
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-900 mb-3 flex items-center">
+                                <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full mr-2">MEAN</span>
+                                Mean Values
+                            </h3>
+                            <p class="text-sm text-gray-600 mb-3">Average measurements across all nuclei in the image</p>
+                            <div class="grid grid-cols-2 gap-2">
+                                {% for feature in feature_groups.mean %}
+                                <div class="text-sm text-gray-700 bg-gray-50 px-3 py-2 rounded">
+                                    {{ feature.replace('_', ' ').title() }}
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <!-- Standard Error Features -->
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-900 mb-3 flex items-center">
+                                <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full mr-2">SE</span>
+                                Standard Error Values
+                            </h3>
+                            <p class="text-sm text-gray-600 mb-3">Standard error of the mean for each feature</p>
+                            <div class="grid grid-cols-2 gap-2">
+                                {% for feature in feature_groups.se %}
+                                <div class="text-sm text-gray-700 bg-gray-50 px-3 py-2 rounded">
+                                    {{ feature.replace('_', ' ').title() }}
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <!-- Worst Features -->
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-900 mb-3 flex items-center">
+                                <span class="bg-red-100 text-red-800 text-xs font-medium px-2.5 py-0.5 rounded-full mr-2">WORST</span>
+                                Worst Values
+                            </h3>
+                            <p class="text-sm text-gray-600 mb-3">Mean of the three largest values for each feature</p>
+                            <div class="grid grid-cols-2 gap-2">
+                                {% for feature in feature_groups.worst %}
+                                <div class="text-sm text-gray-700 bg-gray-50 px-3 py-2 rounded">
+                                    {{ feature.replace('_', ' ').title() }}
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Predictions -->
+            <div class="bg-white rounded-lg shadow">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h2 class="text-xl font-semibold text-gray-900">Your Recent Predictions</h2>
+                </div>
+                <div class="p-6">
+                    {% if recent_predictions %}
+                    <div class="space-y-4">
+                        {% for prediction in recent_predictions %}
+                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                            <div class="flex items-center space-x-3">
+                                <div class="flex-shrink-0">
+                                    <div class="w-8 h-8 rounded-full flex items-center justify-center
+                                        {% if prediction.prediction == 'Benign' %}
+                                            bg-green-100 text-green-600
+                                        {% else %}
+                                            bg-red-100 text-red-600
+                                        {% endif %}">
+                                        {% if prediction.prediction == 'Benign' %}
+                                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                                            </svg>
+                                        {% else %}
+                                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                                            </svg>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-medium text-gray-900">{{ prediction.prediction }}</p>
+                                    <p class="text-sm text-gray-500">{{ prediction.created_at }}</p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-sm font-medium text-gray-900">{{ (prediction.confidence * 100)|round }}%</p>
+                                <p class="text-sm text-gray-500">{{ prediction.risk_level }} Risk</p>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center py-8">
+                        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                        </svg>
+                        <h3 class="mt-2 text-sm font-medium text-gray-900">No predictions yet</h3>
+                        <p class="mt-1 text-sm text-gray-500">Start by creating your first Wisconsin analysis.</p>
+                        <div class="mt-6">
+                            <a href="/wisconsin-prediction" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
+                                Create Analysis
+                            </a>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Feature Importance (if available) -->
+        <div class="bg-white rounded-lg shadow mb-8">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-xl font-semibold text-gray-900">Feature Importance Analysis</h2>
+                    <button id="load-feature-importance-btn" 
+                        class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
+                        Load Feature Importance
+                    </button>
+                </div>
+            </div>
+            <div class="p-6">
+                <div id="feature-importance-content">
+                    <div class="text-center py-8 text-gray-500">
+                        <p>Click "Load Feature Importance" to see which features are most important for predictions.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dataset Statistics -->
+        <div class="bg-white rounded-lg shadow">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h2 class="text-xl font-semibold text-gray-900">Dataset Statistics</h2>
+            </div>
+            <div class="p-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <h3 class="text-lg font-medium text-gray-900 mb-3">Class Distribution</h3>
+                        <div class="space-y-2">
+                            <div class="flex justify-between">
+                                <span class="text-sm text-gray-600">Benign:</span>
+                                <span class="text-sm font-medium">{{ dataset_stats.class_distribution.benign_samples }} ({{ dataset_stats.class_distribution.benign_percentage|round(1) }}%)</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-sm text-gray-600">Malignant:</span>
+                                <span class="text-sm font-medium">{{ dataset_stats.class_distribution.malignant_samples }} ({{ dataset_stats.class_distribution.malignant_percentage|round(1) }}%)</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <h3 class="text-lg font-medium text-gray-900 mb-3">Dataset Info</h3>
+                        <div class="space-y-2">
+                            <div class="flex justify-between">
+                                <span class="text-sm text-gray-600">Total Samples:</span>
+                                <span class="text-sm font-medium">{{ dataset_stats.dataset_info.total_samples }}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-sm text-gray-600">Features:</span>
+                                <span class="text-sm font-medium">{{ dataset_stats.dataset_info.total_features }}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-sm text-gray-600">Missing Values:</span>
+                                <span class="text-sm font-medium">{{ dataset_stats.dataset_info.missing_values }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <h3 class="text-lg font-medium text-gray-900 mb-3">Feature Groups</h3>
+                        <div class="space-y-2">
+                            <div class="flex justify-between">
+                                <span class="text-sm text-gray-600">Mean Features:</span>
+                                <span class="text-sm font-medium">{{ dataset_stats.feature_groups.mean_features }}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-sm text-gray-600">SE Features:</span>
+                                <span class="text-sm font-medium">{{ dataset_stats.feature_groups.standard_error_features }}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-sm text-gray-600">Worst Features:</span>
+                                <span class="text-sm font-medium">{{ dataset_stats.feature_groups.worst_features }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Wisconsin Analytics JavaScript -->
+<script>
+class WisconsinAnalytics {
+    constructor() {
+        this.refreshBtn = document.getElementById('refresh-analytics-btn');
+        this.loadImportanceBtn = document.getElementById('load-feature-importance-btn');
+        this.importanceContent = document.getElementById('feature-importance-content');
+        
+        this.initializeEventListeners();
+    }
+    
+    initializeEventListeners() {
+        this.refreshBtn.addEventListener('click', this.refreshAnalytics.bind(this));
+        this.loadImportanceBtn.addEventListener('click', this.loadFeatureImportance.bind(this));
+    }
+    
+    async refreshAnalytics() {
+        const btn = this.refreshBtn;
+        const originalText = btn.textContent;
+        
+        try {
+            btn.textContent = 'Refreshing...';
+            btn.disabled = true;
+            
+            // Reload the page to get fresh data
+            window.location.reload();
+            
+        } catch (error) {
+            this.showNotification('Failed to refresh analytics: ' + error.message, 'error');
+        } finally {
+            btn.textContent = originalText;
+            btn.disabled = false;
+        }
+    }
+    
+    async loadFeatureImportance() {
+        const btn = this.loadImportanceBtn;
+        const originalText = btn.textContent;
+        
+        try {
+            btn.textContent = 'Loading...';
+            btn.disabled = true;
+            
+            const response = await fetch('/api/wisconsin/feature-importance');
+            const data = await response.json();
+            
+            if (!response.ok) {
+                throw new Error(data.detail || 'Failed to load feature importance');
+            }
+            
+            this.displayFeatureImportance(data);
+            this.showNotification('Feature importance loaded successfully!', 'success');
+            
+        } catch (error) {
+            this.showNotification('Failed to load feature importance: ' + error.message, 'error');
+        } finally {
+            btn.textContent = originalText;
+            btn.disabled = false;
+        }
+    }
+    
+    displayFeatureImportance(data) {
+        const content = this.importanceContent;
+        
+        if (!data.grouped_importance || Object.keys(data.grouped_importance).length === 0) {
+            content.innerHTML = '<div class="text-center py-8 text-gray-500"><p>No feature importance data available. Please train the ensemble model first.</p></div>';
+            return;
+        }
+        
+        let html = '<div class="space-y-6">';
+        
+        // Display grouped importance
+        for (const [groupName, features] of Object.entries(data.grouped_importance)) {
+            if (Object.keys(features).length === 0) continue;
+            
+            const groupTitle = groupName.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
+            const groupColor = groupName.includes('mean') ? 'blue' : 
+                              groupName.includes('se') ? 'green' : 
+                              groupName.includes('worst') ? 'red' : 'purple';
+            
+            html += `
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4 flex items-center">
+                        <span class="bg-${groupColor}-100 text-${groupColor}-800 text-xs font-medium px-2.5 py-0.5 rounded-full mr-2">
+                            ${groupName.toUpperCase().replace('_', ' ')}
+                        </span>
+                        ${groupTitle}
+                    </h3>
+                    <div class="space-y-2">
+            `;
+            
+            // Sort features by importance
+            const sortedFeatures = Object.entries(features)
+                .sort(([,a], [,b]) => b - a)
+                .slice(0, 10); // Top 10 features
+            
+            sortedFeatures.forEach(([feature, importance]) => {
+                const percentage = (importance * 100).toFixed(2);
+                html += `
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-gray-700">${feature.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}</span>
+                        <div class="flex items-center space-x-2">
+                            <div class="w-24 bg-gray-200 rounded-full h-2">
+                                <div class="bg-${groupColor}-600 h-2 rounded-full" style="width: ${percentage}%"></div>
+                            </div>
+                            <span class="text-sm font-medium text-gray-900 w-12 text-right">${percentage}%</span>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += '</div></div>';
+        }
+        
+        html += '</div>';
+        content.innerHTML = html;
+    }
+    
+    showNotification(message, type) {
+        const notification = document.createElement('div');
+        notification.className = `fixed top-4 right-4 p-4 rounded-md shadow-lg z-50 ${
+            type === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+        }`;
+        notification.textContent = message;
+        
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.remove();
+        }, 5000);
+    }
+}
+
+// Initialize when DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+    new WisconsinAnalytics();
+});
+</script>
+{% endblock %}

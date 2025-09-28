@@ -5,7 +5,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.gzip import GZipMiddleware
 
 from .database.init import initialize_database
-from .routers import users, medical, ml
+from .routers import users, medical, ml, wisconsin
 from .internal import admin
 from .dependencies import get_current_user
 from .models.models import User
@@ -23,6 +23,7 @@ templates = Jinja2Templates(directory="templates")
 app.include_router(users.router)
 app.include_router(medical.router)
 app.include_router(ml.router)  # Add ML router
+app.include_router(wisconsin.router)  # Add Wisconsin router
 app.include_router(admin.router)
 
 # Initialize database and apply migrations on startup

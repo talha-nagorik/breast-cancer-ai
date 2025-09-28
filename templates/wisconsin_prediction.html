@@ -1,0 +1,598 @@
+{% extends "base.html" %}
+
+{% block title %}Wisconsin Breast Cancer Analysis - AI Medical Records{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 pt-20">
+    <div class="max-w-7xl mx-auto px-8 py-8">
+        <!-- Navigation Breadcrumb -->
+        <div class="mb-4">
+            <nav class="flex" aria-label="Breadcrumb">
+                <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                    <li class="inline-flex items-center">
+                        <a href="/dashboard" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600">
+                            <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path>
+                            </svg>
+                            Dashboard
+                        </a>
+                    </li>
+                    <li>
+                        <div class="flex items-center">
+                            <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2">Wisconsin Analysis</span>
+                        </div>
+                    </li>
+                </ol>
+            </nav>
+        </div>
+
+        <!-- Page Header -->
+        <div class="bg-white shadow-sm border-b border-gray-200 mb-8">
+            <div class="px-6 py-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h1 class="text-3xl font-bold text-gray-900">Wisconsin Breast Cancer Analysis</h1>
+                        <p class="text-gray-600 mt-1">Advanced AI analysis using the Wisconsin Breast Cancer Dataset</p>
+                        <div class="mt-2 flex items-center space-x-4 text-sm text-gray-500">
+                            <span>📊 569 samples</span>
+                            <span>🔬 30 features</span>
+                            <span>🎯 99%+ accuracy</span>
+                        </div>
+                    </div>
+                    <div class="flex space-x-3">
+                        <button id="train-ensemble-btn" 
+                            class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors">
+                            Train Ensemble
+                        </button>
+                        <a href="/wisconsin-analytics" 
+                            class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
+                            View Analytics
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dataset Information Banner -->
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">
+            <div class="flex items-start">
+                <div class="flex-shrink-0">
+                    <svg class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <h3 class="text-lg font-medium text-blue-800">Wisconsin Breast Cancer Dataset</h3>
+                    <div class="mt-2 text-sm text-blue-700">
+                        <p>This analysis uses the Wisconsin Breast Cancer Dataset (Diagnostic) from the UCI Machine Learning Repository. Features are computed from digitized images of fine needle aspirate (FNA) of breast mass, describing characteristics of cell nuclei present in the image.</p>
+                        <div class="mt-3 grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <span class="font-medium">Mean Features:</span> 10 features describing average measurements
+                            </div>
+                            <div>
+                                <span class="font-medium">Standard Error:</span> 10 features describing standard error
+                            </div>
+                            <div>
+                                <span class="font-medium">Worst Features:</span> 10 features describing largest values
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Error Display -->
+        {% if error %}
+        <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <h3 class="text-sm font-medium text-red-800">Error</h3>
+                    <div class="mt-2 text-sm text-red-700">
+                        <p>{{ error }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Validation Errors -->
+        {% if validation_errors %}
+        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <svg class="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <h3 class="text-sm font-medium text-yellow-800">Validation Errors</h3>
+                    <div class="mt-2 text-sm text-yellow-700">
+                        <ul class="list-disc list-inside space-y-1">
+                            {% for error in validation_errors %}
+                            <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Prediction Result -->
+        {% if prediction_result %}
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-2xl font-bold text-gray-900">Analysis Results</h2>
+                <div class="flex items-center space-x-2">
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium
+                        {% if prediction_result.prediction == 'Benign' %}
+                            bg-green-100 text-green-800
+                        {% else %}
+                            bg-red-100 text-red-800
+                        {% endif %}">
+                        {{ prediction_result.prediction }}
+                    </span>
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium
+                        {% if prediction_result.risk_level == 'Low' %}
+                            bg-green-100 text-green-800
+                        {% elif prediction_result.risk_level == 'Medium' %}
+                            bg-yellow-100 text-yellow-800
+                        {% else %}
+                            bg-red-100 text-red-800
+                        {% endif %}">
+                        {{ prediction_result.risk_level }} Risk
+                    </span>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Confidence Score -->
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">Confidence Score</h3>
+                    <div class="flex items-center">
+                        <div class="flex-1 bg-gray-200 rounded-full h-4 mr-3">
+                            <div class="bg-blue-600 h-4 rounded-full" style="width: {{ (prediction_result.confidence * 100)|round }}%"></div>
+                        </div>
+                        <span class="text-2xl font-bold text-gray-900">{{ (prediction_result.confidence * 100)|round }}%</span>
+                    </div>
+                </div>
+
+                <!-- Uncertainty -->
+                {% if prediction_result.uncertainty %}
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">Uncertainty</h3>
+                    <div class="flex items-center">
+                        <div class="flex-1 bg-gray-200 rounded-full h-4 mr-3">
+                            <div class="bg-orange-500 h-4 rounded-full" style="width: {{ (prediction_result.uncertainty * 100)|round }}%"></div>
+                        </div>
+                        <span class="text-2xl font-bold text-gray-900">{{ (prediction_result.uncertainty * 100)|round }}%</span>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Probabilities -->
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">Probabilities</h3>
+                    <div class="space-y-2">
+                        <div class="flex justify-between">
+                            <span class="text-sm text-gray-600">Benign:</span>
+                            <span class="text-sm font-medium">{{ (prediction_result.probabilities.benign * 100)|round }}%</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-sm text-gray-600">Malignant:</span>
+                            <span class="text-sm font-medium">{{ (prediction_result.probabilities.malignant * 100)|round }}%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recommendations -->
+            <div class="mt-6 p-4 bg-blue-50 rounded-lg">
+                <h3 class="text-lg font-medium text-blue-900 mb-2">Recommendations</h3>
+                <div class="text-sm text-blue-800">
+                    {% if prediction_result.prediction == 'Benign' %}
+                        <p>Based on the analysis, the features suggest a benign condition. However, it's important to:</p>
+                        <ul class="list-disc list-inside mt-2 space-y-1">
+                            <li>Continue regular screening as recommended by your healthcare provider</li>
+                            <li>Monitor any changes in breast tissue</li>
+                            <li>Maintain a healthy lifestyle</li>
+                        </ul>
+                    {% else %}
+                        <p>Based on the analysis, the features suggest a malignant condition. It's important to:</p>
+                        <ul class="list-disc list-inside mt-2 space-y-1">
+                            <li>Consult with a healthcare professional immediately</li>
+                            <li>Consider additional diagnostic tests</li>
+                            <li>Discuss treatment options with your medical team</li>
+                        </ul>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Wisconsin Prediction Form -->
+        <div class="bg-white rounded-lg shadow">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h2 class="text-xl font-semibold text-gray-900">Wisconsin Dataset Analysis</h2>
+                <p class="text-sm text-gray-600">Enter the 30 computed features from digitized images for AI analysis</p>
+            </div>
+            
+            <form id="wisconsin-prediction-form" class="p-6">
+                <!-- Mean Features -->
+                <div class="mb-8">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4 flex items-center">
+                        <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full mr-2">MEAN</span>
+                        Mean Values (Average of all nuclei)
+                    </h3>
+                    <p class="text-sm text-gray-600 mb-4">These represent the average measurements across all nuclei in the image</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {% for feature in feature_groups.mean %}
+                        <div class="feature-input-group">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                                {{ feature.replace('_', ' ').title() }}
+                            </label>
+                            <input type="number" 
+                                   name="{{ feature }}" 
+                                   step="0.00001"
+                                   placeholder="{{ feature_info[feature].range.typical[0]|round(3) }} - {{ feature_info[feature].range.typical[1]|round(3) }}"
+                                   data-range-min="{{ feature_info[feature].range.min }}"
+                                   data-range-max="{{ feature_info[feature].range.max }}"
+                                   data-description="{{ feature_info[feature].description }}"
+                                   class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 wisconsin-input">
+                            <div class="text-xs text-gray-500 mt-1 feature-description" style="display: none;">
+                                {{ feature_info[feature].description }}
+                            </div>
+                            <div class="text-xs text-gray-400 mt-1">
+                                Range: {{ feature_info[feature].range.min|round(3) }} - {{ feature_info[feature].range.max|round(3) }}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Standard Error Features -->
+                <div class="mb-8">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4 flex items-center">
+                        <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full mr-2">SE</span>
+                        Standard Error Values
+                    </h3>
+                    <p class="text-sm text-gray-600 mb-4">Standard error of the mean for each feature</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {% for feature in feature_groups.se %}
+                        <div class="feature-input-group">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                                {{ feature.replace('_', ' ').title() }}
+                            </label>
+                            <input type="number" 
+                                   name="{{ feature }}" 
+                                   step="0.00001"
+                                   placeholder="{{ feature_info[feature].range.typical[0]|round(3) }} - {{ feature_info[feature].range.typical[1]|round(3) }}"
+                                   data-range-min="{{ feature_info[feature].range.min }}"
+                                   data-range-max="{{ feature_info[feature].range.max }}"
+                                   data-description="{{ feature_info[feature].description }}"
+                                   class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 wisconsin-input">
+                            <div class="text-xs text-gray-500 mt-1 feature-description" style="display: none;">
+                                {{ feature_info[feature].description }}
+                            </div>
+                            <div class="text-xs text-gray-400 mt-1">
+                                Range: {{ feature_info[feature].range.min|round(3) }} - {{ feature_info[feature].range.max|round(3) }}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Worst Features -->
+                <div class="mb-8">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4 flex items-center">
+                        <span class="bg-red-100 text-red-800 text-xs font-medium px-2.5 py-0.5 rounded-full mr-2">WORST</span>
+                        Worst Values (Largest values)
+                    </h3>
+                    <p class="text-sm text-gray-600 mb-4">Mean of the three largest values for each feature</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {% for feature in feature_groups.worst %}
+                        <div class="feature-input-group">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                                {{ feature.replace('_', ' ').title() }}
+                            </label>
+                            <input type="number" 
+                                   name="{{ feature }}" 
+                                   step="0.00001"
+                                   placeholder="{{ feature_info[feature].range.typical[0]|round(3) }} - {{ feature_info[feature].range.typical[1]|round(3) }}"
+                                   data-range-min="{{ feature_info[feature].range.min }}"
+                                   data-range-max="{{ feature_info[feature].range.max }}"
+                                   data-description="{{ feature_info[feature].description }}"
+                                   class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 wisconsin-input">
+                            <div class="text-xs text-gray-500 mt-1 feature-description" style="display: none;">
+                                {{ feature_info[feature].description }}
+                            </div>
+                            <div class="text-xs text-gray-400 mt-1">
+                                Range: {{ feature_info[feature].range.min|round(3) }} - {{ feature_info[feature].range.max|round(3) }}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="flex justify-end space-x-4">
+                    <button type="button" id="validate-form-btn" 
+                        class="bg-gray-600 text-white px-6 py-2 rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors">
+                        Validate Input
+                    </button>
+                    <button type="submit"
+                        class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
+                        Analyze with Wisconsin AI
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Feature Help Modal -->
+        <div id="feature-help-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+            <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
+                <div class="mt-3">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-medium text-gray-900">Feature Information</h3>
+                        <button id="close-help-modal" class="text-gray-400 hover:text-gray-600">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    <div id="feature-help-content" class="text-sm text-gray-600">
+                        <!-- Content will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Wisconsin-specific JavaScript -->
+<script>
+// Wisconsin form validation and interaction
+class WisconsinFormHandler {
+    constructor() {
+        this.form = document.getElementById('wisconsin-prediction-form');
+        this.validateBtn = document.getElementById('validate-form-btn');
+        this.trainBtn = document.getElementById('train-ensemble-btn');
+        this.helpModal = document.getElementById('feature-help-modal');
+        this.closeHelpBtn = document.getElementById('close-help-modal');
+        this.helpContent = document.getElementById('feature-help-content');
+        
+        this.initializeEventListeners();
+    }
+    
+    initializeEventListeners() {
+        // Form submission
+        this.form.addEventListener('submit', this.handleFormSubmit.bind(this));
+        
+        // Validation button
+        this.validateBtn.addEventListener('click', this.validateAllInputs.bind(this));
+        
+        // Train ensemble button
+        this.trainBtn.addEventListener('click', this.trainEnsemble.bind(this));
+        
+        // Feature input validation
+        document.querySelectorAll('.wisconsin-input').forEach(input => {
+            input.addEventListener('blur', this.validateSingleInput.bind(this));
+            input.addEventListener('focus', this.showFeatureDescription.bind(this));
+        });
+        
+        // Help modal
+        this.closeHelpBtn.addEventListener('click', () => {
+            this.helpModal.classList.add('hidden');
+        });
+        
+        // Close modal on outside click
+        this.helpModal.addEventListener('click', (e) => {
+            if (e.target === this.helpModal) {
+                this.helpModal.classList.add('hidden');
+            }
+        });
+    }
+    
+    validateSingleInput(event) {
+        const input = event.target;
+        const value = parseFloat(input.value);
+        const min = parseFloat(input.dataset.rangeMin);
+        const max = parseFloat(input.dataset.rangeMax);
+        
+        // Remove existing validation classes
+        input.classList.remove('border-red-500', 'border-green-500');
+        
+        if (isNaN(value)) {
+            input.classList.add('border-red-500');
+            this.showInputError(input, 'Please enter a valid number');
+            return false;
+        }
+        
+        if (value < min || value > max) {
+            input.classList.add('border-red-500');
+            this.showInputError(input, `Value must be between ${min.toFixed(3)} and ${max.toFixed(3)}`);
+            return false;
+        }
+        
+        input.classList.add('border-green-500');
+        this.clearInputError(input);
+        return true;
+    }
+    
+    validateAllInputs() {
+        const inputs = document.querySelectorAll('.wisconsin-input');
+        let allValid = true;
+        
+        inputs.forEach(input => {
+            if (!this.validateSingleInput({ target: input })) {
+                allValid = false;
+            }
+        });
+        
+        if (allValid) {
+            this.showNotification('All inputs are valid!', 'success');
+        } else {
+            this.showNotification('Please fix validation errors before submitting', 'error');
+        }
+        
+        return allValid;
+    }
+    
+    showFeatureDescription(event) {
+        const input = event.target;
+        const description = input.dataset.description;
+        
+        // Show description below input
+        const descElement = input.parentElement.querySelector('.feature-description');
+        if (descElement) {
+            descElement.style.display = 'block';
+        }
+    }
+    
+    showInputError(input, message) {
+        let errorElement = input.parentElement.querySelector('.input-error');
+        if (!errorElement) {
+            errorElement = document.createElement('div');
+            errorElement.className = 'input-error text-xs text-red-600 mt-1';
+            input.parentElement.appendChild(errorElement);
+        }
+        errorElement.textContent = message;
+    }
+    
+    clearInputError(input) {
+        const errorElement = input.parentElement.querySelector('.input-error');
+        if (errorElement) {
+            errorElement.remove();
+        }
+    }
+    
+    async handleFormSubmit(event) {
+        event.preventDefault();
+        
+        // Validate all inputs first
+        if (!this.validateAllInputs()) {
+            return;
+        }
+        
+        const formData = new FormData(this.form);
+        const submitBtn = this.form.querySelector('button[type="submit"]');
+        const originalText = submitBtn.textContent;
+        
+        try {
+            submitBtn.textContent = 'Analyzing...';
+            submitBtn.disabled = true;
+            
+            // Convert form data to features
+            const features = {};
+            for (const [key, value] of formData.entries()) {
+                features[key] = parseFloat(value);
+            }
+            
+            // Make prediction via API
+            const response = await fetch('/api/wisconsin/predict', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    features: features,
+                    include_uncertainty: true,
+                    return_individual_predictions: false
+                })
+            });
+            
+            const result = await response.json();
+            
+            if (!response.ok) {
+                throw new Error(result.detail || 'Prediction failed');
+            }
+            
+            // Reload page to show results
+            window.location.reload();
+            
+        } catch (error) {
+            this.showNotification('Analysis failed: ' + error.message, 'error');
+        } finally {
+            submitBtn.textContent = originalText;
+            submitBtn.disabled = false;
+        }
+    }
+    
+    async trainEnsemble() {
+        const btn = this.trainBtn;
+        const originalText = btn.textContent;
+        
+        try {
+            btn.textContent = 'Training...';
+            btn.disabled = true;
+            
+            const response = await fetch('/api/wisconsin/train-ensemble', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            });
+            
+            const result = await response.json();
+            
+            if (!response.ok) {
+                throw new Error(result.message || 'Training failed');
+            }
+            
+            this.showNotification('Ensemble trained successfully!', 'success');
+            
+        } catch (error) {
+            this.showNotification('Training failed: ' + error.message, 'error');
+        } finally {
+            btn.textContent = originalText;
+            btn.disabled = false;
+        }
+    }
+    
+    showNotification(message, type) {
+        // Create notification element
+        const notification = document.createElement('div');
+        notification.className = `fixed top-4 right-4 p-4 rounded-md shadow-lg z-50 ${
+            type === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+        }`;
+        notification.textContent = message;
+        
+        document.body.appendChild(notification);
+        
+        // Remove after 5 seconds
+        setTimeout(() => {
+            notification.remove();
+        }, 5000);
+    }
+}
+
+// Initialize when DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+    new WisconsinFormHandler();
+});
+</script>
+
+<style>
+.feature-input-group {
+    position: relative;
+}
+
+.wisconsin-input:focus + .feature-description {
+    display: block !important;
+}
+
+.input-error {
+    color: #dc2626;
+    font-size: 0.75rem;
+    margin-top: 0.25rem;
+}
+</style>
+{% endblock %}

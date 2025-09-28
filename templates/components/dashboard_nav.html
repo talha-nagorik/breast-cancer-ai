@@ -20,6 +20,14 @@
         @click="setActiveTab('breast-cancer')">
         🎯 Breast Cancer Analysis
       </button>
+      <a href="/wisconsin-prediction" 
+        class="nav-tab py-4 px-1 border-b-2 font-medium transition-all duration-200 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300">
+        🔬 Wisconsin Analysis
+      </a>
+      <a href="/wisconsin-analytics" 
+        class="nav-tab py-4 px-1 border-b-2 font-medium transition-all duration-200 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300">
+        📊 Wisconsin Analytics
+      </a>
       <button 
         class="nav-tab py-4 px-1 border-b-2 font-medium transition-all duration-200"
         :class="isActiveTab('profile') ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700'"
