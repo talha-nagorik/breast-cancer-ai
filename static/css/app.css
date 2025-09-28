@@ -38,6 +38,7 @@
     --color-blue-600: oklch(54.6% 0.245 262.881);
     --color-blue-800: oklch(42.4% 0.199 265.638);
     --color-indigo-100: oklch(93% 0.034 272.788);
+    --color-indigo-200: oklch(87% 0.065 274.039);
     --color-indigo-500: oklch(58.5% 0.233 277.117);
     --color-indigo-600: oklch(51.1% 0.262 276.966);
     --color-indigo-900: oklch(35.9% 0.144 278.697);
@@ -1291,6 +1292,11 @@
   .focus\:ring-indigo-100 {
     &:focus {
       --tw-ring-color: var(--color-indigo-100);
+    }
+  }
+  .focus\:ring-indigo-200 {
+    &:focus {
+      --tw-ring-color: var(--color-indigo-200);
     }
   }
   .focus\:ring-indigo-500 {

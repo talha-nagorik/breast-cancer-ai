@@ -29,59 +29,116 @@
 
       <form @submit.prevent="handleSubmit" class="space-y-6">
         <div>
+          <label for="full_name" class="block text-sm font-medium text-gray-700 mb-2 sr-only">Full Name</label>
           <input
             type="text"
+            id="full_name"
+            name="full_name"
             x-model="formData.full_name"
-            @blur="validateField('full_name', formData.full_name, { required: true })"
+            @blur="validateField('full_name', formData.full_name, { required: true, minLength: 2, maxLength: 50 })"
+            @input="clearFieldError('full_name')"
             placeholder="Full name"
             class="w-full px-4 py-4 border-2 rounded-xl text-base transition-all duration-300 bg-white/80 backdrop-blur-sm focus:outline-none focus:bg-white focus:ring-4 focus:ring-indigo-100"
-            :class="errors.full_name ? 'border-red-500 focus:border-red-500' : 'border-gray-200 focus:border-indigo-500'"
+            :class="errors.full_name ? 'border-red-500 focus:border-red-500 focus:ring-red-100' : 'border-gray-200 focus:border-indigo-500'"
+            :aria-invalid="errors.full_name ? 'true' : 'false'"
+            :aria-describedby="errors.full_name ? 'full_name-error' : null"
             required
+            autocomplete="name"
             value="{{ form_data.full_name if form_data else '' }}"
           />
-          <div x-show="errors.full_name" x-text="errors.full_name" class="text-red-500 text-sm mt-2"></div>
+          <div 
+            x-show="errors.full_name" 
+            x-text="errors.full_name" 
+            id="full_name-error"
+            role="alert"
+            class="text-red-500 text-sm mt-2"
+            aria-live="polite">
+          </div>
         </div>
         <div>
+          <label for="email" class="block text-sm font-medium text-gray-700 mb-2 sr-only">Email Address</label>
           <input
             type="email"
+            id="email"
+            name="email"
             x-model="formData.email"
             @blur="validateField('email', formData.email, { required: true, email: true })"
+            @input="clearFieldError('email')"
             placeholder="Email address"
             class="w-full px-4 py-4 border-2 rounded-xl text-base transition-all duration-300 bg-white/80 backdrop-blur-sm focus:outline-none focus:bg-white focus:ring-4 focus:ring-indigo-100"
-            :class="errors.email ? 'border-red-500 focus:border-red-500' : 'border-gray-200 focus:border-indigo-500'"
+            :class="errors.email ? 'border-red-500 focus:border-red-500 focus:ring-red-100' : 'border-gray-200 focus:border-indigo-500'"
+            :aria-invalid="errors.email ? 'true' : 'false'"
+            :aria-describedby="errors.email ? 'email-error' : null"
             required
+            autocomplete="email"
             value="{{ form_data.email if form_data else '' }}"
           />
-          <div x-show="errors.email" x-text="errors.email" class="text-red-500 text-sm mt-2"></div>
+          <div 
+            x-show="errors.email" 
+            x-text="errors.email" 
+            id="email-error"
+            role="alert"
+            class="text-red-500 text-sm mt-2"
+            aria-live="polite">
+          </div>
         </div>
         <div>
+          <label for="password" class="block text-sm font-medium text-gray-700 mb-2 sr-only">Password</label>
           <input
             type="password"
+            id="password"
+            name="password"
             x-model="formData.password"
-            @blur="validateField('password', formData.password, { required: true, minLength: 6 })"
-            placeholder="Password"
+            @blur="validateField('password', formData.password, { required: true, minLength: 8 })"
+            @input="clearFieldError('password')"
+            placeholder="Password (min 8 characters)"
             class="w-full px-4 py-4 border-2 rounded-xl text-base transition-all duration-300 bg-white/80 backdrop-blur-sm focus:outline-none focus:bg-white focus:ring-4 focus:ring-indigo-100"
-            :class="errors.password ? 'border-red-500 focus:border-red-500' : 'border-gray-200 focus:border-indigo-500'"
+            :class="errors.password ? 'border-red-500 focus:border-red-500 focus:ring-red-100' : 'border-gray-200 focus:border-indigo-500'"
+            :aria-invalid="errors.password ? 'true' : 'false'"
+            :aria-describedby="errors.password ? 'password-error' : null"
             required
+            autocomplete="new-password"
           />
-          <div x-show="errors.password" x-text="errors.password" class="text-red-500 text-sm mt-2"></div>
+          <div 
+            x-show="errors.password" 
+            x-text="errors.password" 
+            id="password-error"
+            role="alert"
+            class="text-red-500 text-sm mt-2"
+            aria-live="polite">
+          </div>
         </div>
         <div>
+          <label for="confirm_password" class="block text-sm font-medium text-gray-700 mb-2 sr-only">Confirm Password</label>
           <input
             type="password"
+            id="confirm_password"
+            name="confirm_password"
             x-model="formData.confirm_password"
             @blur="validateField('confirm_password', formData.confirm_password, { required: true, match: formData.password })"
+            @input="clearFieldError('confirm_password')"
             placeholder="Confirm password"
             class="w-full px-4 py-4 border-2 rounded-xl text-base transition-all duration-300 bg-white/80 backdrop-blur-sm focus:outline-none focus:bg-white focus:ring-4 focus:ring-indigo-100"
-            :class="errors.confirm_password ? 'border-red-500 focus:border-red-500' : 'border-gray-200 focus:border-indigo-500'"
+            :class="errors.confirm_password ? 'border-red-500 focus:border-red-500 focus:ring-red-100' : 'border-gray-200 focus:border-indigo-500'"
+            :aria-invalid="errors.confirm_password ? 'true' : 'false'"
+            :aria-describedby="errors.confirm_password ? 'confirm_password-error' : null"
             required
+            autocomplete="new-password"
           />
-          <div x-show="errors.confirm_password" x-text="errors.confirm_password" class="text-red-500 text-sm mt-2"></div>
+          <div 
+            x-show="errors.confirm_password" 
+            x-text="errors.confirm_password" 
+            id="confirm_password-error"
+            role="alert"
+            class="text-red-500 text-sm mt-2"
+            aria-live="polite">
+          </div>
         </div>
         <button 
           type="submit" 
           :disabled="loading"
-          class="w-full px-8 py-4 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+          class="w-full px-8 py-4 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none focus:outline-none focus:ring-4 focus:ring-indigo-200"
+          :aria-busy="loading"
           x-text="loading ? 'Creating Account...' : 'Create Account'">
         </button>
       </form>

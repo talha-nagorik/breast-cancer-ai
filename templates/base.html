@@ -158,8 +158,14 @@
     <!-- Alpine.js -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     
-    <!-- Common JavaScript -->
+    <!-- JavaScript Modules (loaded in dependency order) -->
+    <script src="{{ url_for('static', path='/js/form-validator.js') }}"></script>
+    <script src="{{ url_for('static', path='/js/form-handler.js') }}"></script>
+    <script src="{{ url_for('static', path='/js/utils.js') }}"></script>
+    <script src="{{ url_for('static', path='/js/api.js') }}"></script>
+    <script src="{{ url_for('static', path='/js/alpine-components.js') }}"></script>
     <script src="{{ url_for('static', path='/js/common.js') }}"></script>
+    
     {% block extra_js %}{% endblock %}
 </body>
 
