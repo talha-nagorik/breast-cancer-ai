@@ -8,18 +8,35 @@ from ..models.models import User, MedicalRecord, FamilyHistory
 from ..database.database import get_session
 from ..dependencies import get_current_user
 
-router = APIRouter()
+router = APIRouter(
+    prefix="/medical",
+    tags=["Medical Records"],
+    responses={404: {"description": "Not found"}}
+)
 templates = Jinja2Templates(directory="templates")
 
 # Dashboard page
-@router.get("/dashboard", response_class=HTMLResponse)
+
+
+@router.get("/dashboard",
+            response_class=HTMLResponse,
+            summary="Medical Dashboard",
+            description="Main dashboard for medical records and health information")
 async def dashboard(request: Request, user: User | None = Depends(get_current_user), session: Session = Depends(get_session)):
+    """
+    Medical dashboard page.
+
+    Displays the main dashboard with medical records, family history,
+    and health statistics for the authenticated user.
+    """
     if not user:
         return RedirectResponse(url="/signup")
 
     # Get user's medical records and family history
-    medical_records = session.exec(select(MedicalRecord).where(MedicalRecord.user_id == user.id)).all()
-    family_history = session.exec(select(FamilyHistory).where(FamilyHistory.user_id == user.id)).all()
+    medical_records = session.exec(select(MedicalRecord).where(
+        MedicalRecord.user_id == user.id)).all()
+    family_history = session.exec(select(FamilyHistory).where(
+        FamilyHistory.user_id == user.id)).all()
 
     # Convert to dict format for template compatibility
     medical_records_dict = []
@@ -44,8 +61,10 @@ async def dashboard(request: Request, user: User | None = Depends(get_current_us
         })
 
     # Calculate stats
-    completed_records = len([r for r in medical_records_dict if r["status"] == "completed"])
-    pending_records = len([r for r in medical_records_dict if r["status"] == "pending"])
+    completed_records = len(
+        [r for r in medical_records_dict if r["status"] == "completed"])
+    pending_records = len(
+        [r for r in medical_records_dict if r["status"] == "pending"])
     total_doctors = len(set(r["doctor"] for r in medical_records_dict))
 
     # Recent activities (last 3 records)
@@ -68,6 +87,8 @@ async def dashboard(request: Request, user: User | None = Depends(get_current_us
     return templates.TemplateResponse("dashboard.html", context)
 
 # Add medical record
+
+
 @router.post("/add_record")
 async def add_record(
     request: Request,
@@ -91,15 +112,18 @@ async def add_record(
             form_data = await request.form()
             record_type = form_data.get("record_type") or form_data.get("type")
             record_date = form_data.get("record_date") or form_data.get("date")
-            record_doctor = form_data.get("record_doctor") or form_data.get("doctor")
-            record_notes = form_data.get("record_notes") or form_data.get("notes", "")
+            record_doctor = form_data.get(
+                "record_doctor") or form_data.get("doctor")
+            record_notes = form_data.get(
+                "record_notes") or form_data.get("notes", "")
             record_status = form_data.get("status", "pending")
 
         # Validate required fields
         if not record_type or not record_date or not record_doctor:
             if request.headers.get("content-type", "").startswith("application/json"):
                 from fastapi import HTTPException
-                raise HTTPException(status_code=400, detail="Missing required fields")
+                raise HTTPException(
+                    status_code=400, detail="Missing required fields")
             else:
                 return RedirectResponse(url="/dashboard?error=missing_fields", status_code=303)
 
@@ -128,11 +152,14 @@ async def add_record(
     except Exception as e:
         if request.headers.get("content-type", "").startswith("application/json"):
             from fastapi import HTTPException
-            raise HTTPException(status_code=500, detail=f"Failed to add record: {str(e)}")
+            raise HTTPException(
+                status_code=500, detail=f"Failed to add record: {str(e)}")
         else:
             return RedirectResponse(url="/dashboard?error=add_failed", status_code=303)
 
 # Update profile
+
+
 @router.post("/update_profile")
 async def update_profile(
     request: Request,
@@ -163,6 +190,8 @@ async def update_profile(
     return RedirectResponse(url="/dashboard", status_code=303)
 
 # Update medical info
+
+
 @router.post("/update_medical_info")
 async def update_medical_info(
     request: Request,
@@ -185,6 +214,8 @@ async def update_medical_info(
     return RedirectResponse(url="/dashboard", status_code=303)
 
 # Add family member
+
+
 @router.post("/add_family_member")
 async def add_family_member(
     request: Request,
@@ -211,6 +242,8 @@ async def add_family_member(
     return RedirectResponse(url="/dashboard", status_code=303)
 
 # Remove family member
+
+
 @router.post("/remove_family_member")
 async def remove_family_member(
     request: Request,
@@ -222,8 +255,9 @@ async def remove_family_member(
         return RedirectResponse(url="/signup")
 
     # Get family history records
-    family_history = session.exec(select(FamilyHistory).where(FamilyHistory.user_id == user.id)).all()
-    
+    family_history = session.exec(select(FamilyHistory).where(
+        FamilyHistory.user_id == user.id)).all()
+
     # Remove family member by index
     if 0 <= index < len(family_history):
         member_to_remove = family_history[index]
@@ -233,14 +267,19 @@ async def remove_family_member(
     return RedirectResponse(url="/dashboard", status_code=303)
 
 # API endpoints for AJAX requests
+
+
 @router.get("/api/stats")
 async def get_stats(request: Request, user: User | None = Depends(get_current_user), session: Session = Depends(get_session)):
     if not user:
         raise HTTPException(status_code=401, detail="Not authenticated")
 
-    medical_records = session.exec(select(MedicalRecord).where(MedicalRecord.user_id == user.id)).all()
-    completed_records = len([r for r in medical_records if r.status == "completed"])
-    pending_records = len([r for r in medical_records if r.status == "pending"])
+    medical_records = session.exec(select(MedicalRecord).where(
+        MedicalRecord.user_id == user.id)).all()
+    completed_records = len(
+        [r for r in medical_records if r.status == "completed"])
+    pending_records = len(
+        [r for r in medical_records if r.status == "pending"])
     total_doctors = len(set(r.doctor for r in medical_records))
 
     return {

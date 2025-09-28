@@ -10,7 +10,38 @@ from .internal import admin
 from .dependencies import get_current_user
 from .models.models import User
 
-app = FastAPI(title="AI Medical Records Application")
+app = FastAPI(
+    title="AI Medical Records Application",
+    description="""
+    A comprehensive medical records management system with AI-powered breast cancer detection.
+    
+    ## Features
+    
+    * **User Management**: Secure registration, login, and session management
+    * **Medical Records**: Track medical history, test results, and doctor information
+    * **Family History**: Manage family medical history and genetic information
+    * **AI Breast Cancer Detection**: Advanced machine learning models for breast cancer prediction
+    * **Wisconsin Dataset Analysis**: Specialized analysis using the Wisconsin Breast Cancer Dataset
+    
+    ## AI Models
+    
+    * **Standard Model**: Random Forest classifier with 97%+ accuracy
+    * **Wisconsin Ensemble**: 8-model ensemble with 98.25% accuracy and 99.97% ROC AUC
+    
+    ## Authentication
+    
+    Most endpoints require user authentication. Use the `/users/signup` and `/users/login` endpoints to create an account.
+    """,
+    version="1.0.0",
+    contact={
+        "name": "AI Medical Records Team",
+        "email": "support@aimedicalrecords.com",
+    },
+    license_info={
+        "name": "MIT License",
+        "url": "https://opensource.org/licenses/MIT",
+    },
+)
 
 # Mount static files
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -36,8 +67,18 @@ def on_startup():
 # Home page
 
 
-@app.get("/", response_class=HTMLResponse)
+@app.get("/",
+         response_class=HTMLResponse,
+         tags=["Application"],
+         summary="Home Page",
+         description="Welcome page with application overview and features")
 async def home(request: Request, user: User | None = Depends(get_current_user)):
+    """
+    Home page.
+
+    Displays the welcome page with application overview, features,
+    and information about AI breast cancer detection capabilities.
+    """
     # Sample data for the home page
     context = {
         "request": request,

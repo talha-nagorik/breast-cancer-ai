@@ -10,9 +10,12 @@ from ..database.database import get_session
 from ..dependencies import get_current_user
 
 # Pydantic models for JSON requests
+
+
 class LoginRequest(BaseModel):
     email: str
     password: str
+
 
 class SignupRequest(BaseModel):
     full_name: str
@@ -20,14 +23,28 @@ class SignupRequest(BaseModel):
     password: str
     confirm_password: str
 
-router = APIRouter()
+
+router = APIRouter(
+    prefix="/users",
+    tags=["User Management"],
+    responses={404: {"description": "Not found"}}
+)
 templates = Jinja2Templates(directory="templates")
 
 # Signup page
 
 
-@router.get("/signup", response_class=HTMLResponse)
+@router.get("/signup",
+            response_class=HTMLResponse,
+            summary="User Signup Page",
+            description="Registration page for new users")
 async def signup_form(request: Request, user: User | None = Depends(get_current_user)):
+    """
+    User signup page.
+
+    Displays the user registration form for creating new accounts.
+    Redirects authenticated users to the dashboard.
+    """
     if user:
         return RedirectResponse(url="/dashboard")
 
@@ -39,8 +56,17 @@ async def signup_form(request: Request, user: User | None = Depends(get_current_
 # Login page
 
 
-@router.get("/login", response_class=HTMLResponse)
+@router.get("/login",
+            response_class=HTMLResponse,
+            summary="User Login Page",
+            description="Login page for existing users")
 async def login_form(request: Request, user: User | None = Depends(get_current_user)):
+    """
+    User login page.
+
+    Displays the user login form for existing accounts.
+    Redirects authenticated users to the dashboard.
+    """
     if user:
         return RedirectResponse(url="/dashboard")
 
@@ -52,7 +78,9 @@ async def login_form(request: Request, user: User | None = Depends(get_current_u
 # Handle signup form submission
 
 
-@router.post("/signup")
+@router.post("/signup",
+             summary="Submit User Registration",
+             description="Process user registration form and create new account")
 async def signup_submit(
     request: Request,
     full_name: str = Form(...),
@@ -61,6 +89,12 @@ async def signup_submit(
     confirm_password: str = Form(...),
     session: Session = Depends(get_session)
 ):
+    """
+    Submit user registration.
+
+    Processes the user registration form, validates input data,
+    creates a new user account, and redirects to login.
+    """
     # Basic validation
     if password != confirm_password:
         return templates.TemplateResponse("signup.html", {
@@ -117,13 +151,21 @@ async def signup_submit(
 # Handle login form submission
 
 
-@router.post("/login")
+@router.post("/login",
+             summary="Submit User Login",
+             description="Process user login form and authenticate user")
 async def login_submit(
     request: Request,
     email: str = Form(...),
     password: str = Form(...),
     session: Session = Depends(get_session)
 ):
+    """
+    Submit user login.
+
+    Processes the user login form, validates credentials,
+    creates a user session, and redirects to dashboard.
+    """
     # Get user from database
     user = session.exec(select(User).where(
         User.email == email, User.is_active == True)).first()
@@ -146,13 +188,24 @@ async def login_submit(
         })
 
 # Logout
-@router.get("/logout")
+
+
+@router.get("/logout",
+            summary="User Logout",
+            description="Logout user and clear session")
 async def logout():
+    """
+    User logout.
+
+    Clears the user session cookie and redirects to the home page.
+    """
     response = RedirectResponse(url="/")
     response.delete_cookie(key="session_id")
     return response
 
 # JSON API endpoints for AJAX requests
+
+
 @router.post("/api/login")
 async def api_login(
     request: LoginRequest,
@@ -160,8 +213,9 @@ async def api_login(
 ):
     """JSON API endpoint for login"""
     # Get user from database
-    user = session.exec(select(User).where(User.email == request.email, User.is_active == True)).first()
-    
+    user = session.exec(select(User).where(
+        User.email == request.email, User.is_active == True)).first()
+
     if user and verify_password(request.password, user.password_hash):
         # Create new session
         user_session = UserSession(user_id=user.id)
@@ -169,7 +223,8 @@ async def api_login(
         session.commit()
         session.refresh(user_session)
 
-        response = JSONResponse(content={"success": True, "message": "Login successful"})
+        response = JSONResponse(
+            content={"success": True, "message": "Login successful"})
         response.set_cookie(key="session_id", value=user_session.id)
         return response
     else:
@@ -177,6 +232,7 @@ async def api_login(
             status_code=401,
             content={"success": False, "message": "Invalid email or password"}
         )
+
 
 @router.post("/api/signup")
 async def api_signup(
@@ -194,15 +250,18 @@ async def api_signup(
     if len(request.password) < 6:
         return JSONResponse(
             status_code=400,
-            content={"success": False, "message": "Password must be at least 6 characters"}
+            content={"success": False,
+                     "message": "Password must be at least 6 characters"}
         )
 
     # Check if user already exists
-    existing_user = session.exec(select(User).where(User.email == request.email)).first()
+    existing_user = session.exec(select(User).where(
+        User.email == request.email)).first()
     if existing_user:
         return JSONResponse(
             status_code=400,
-            content={"success": False, "message": "User already exists with this email"}
+            content={"success": False,
+                     "message": "User already exists with this email"}
         )
 
     # Create new user
@@ -229,6 +288,7 @@ async def api_signup(
     session.commit()
     session.refresh(user_session)
 
-    response = JSONResponse(content={"success": True, "message": "Account created successfully"})
+    response = JSONResponse(
+        content={"success": True, "message": "Account created successfully"})
     response.set_cookie(key="session_id", value=user_session.id)
     return response

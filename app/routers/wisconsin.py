@@ -3,14 +3,15 @@ Wisconsin Breast Cancer Dataset API Endpoints
 Specialized endpoints for Wisconsin dataset analysis and predictions
 """
 
-from fastapi import APIRouter, Request, Form, Depends, HTTPException
+import numpy as np
+
+from fastapi import APIRouter, Request, Depends, HTTPException
 from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
 from sqlmodel import Session, select
 from pydantic import BaseModel
-from typing import Dict, List, Optional, Any
-import json
-import numpy as np
+from typing import Any
+from sklearn.model_selection import train_test_split
 
 from ..models.models import User, BreastCancerPrediction
 from ..database.database import get_session
@@ -18,39 +19,58 @@ from ..dependencies import get_current_user
 from ..ml.wisconsin_analyzer import wisconsin_analyzer
 from ..ml.wisconsin_ensemble import wisconsin_ensemble
 
-router = APIRouter()
+router = APIRouter(
+    prefix="/wisconsin",
+    tags=["Wisconsin Breast Cancer Dataset"],
+    responses={404: {"description": "Not found"}}
+)
 templates = Jinja2Templates(directory="templates")
 
 # Pydantic models for Wisconsin API
+
+
 class WisconsinPredictionRequest(BaseModel):
-    features: Dict[str, float]
+    features: dict[str, float]
     include_uncertainty: bool = True
     return_individual_predictions: bool = False
+
 
 class WisconsinPredictionResponse(BaseModel):
     prediction: str
     confidence: float
-    uncertainty: Optional[float] = None
+    uncertainty: float | None = None
     risk_level: str
-    probabilities: Dict[str, float]
-    individual_predictions: Optional[Dict[str, Any]] = None
-    feature_validation: Dict[str, Any]
+    probabilities: dict[str, float]
+    individual_predictions: dict[str, Any] | None = None
+    feature_validation: dict[str, Any]
+
 
 class WisconsinDatasetInfo(BaseModel):
     dataset_name: str
     source: str
     url: str
-    statistics: Dict[str, Any]
-    feature_groups: Dict[str, int]
-    clinical_context: Dict[str, str]
+    statistics: dict[str, Any]
+    feature_groups: dict[str, int]
+    clinical_context: dict[str, str]
 
 # Wisconsin Dataset Information Endpoints
-@router.get("/api/wisconsin/dataset-info", response_model=WisconsinDatasetInfo)
+
+
+@router.get("/api/dataset-info",
+            response_model=WisconsinDatasetInfo,
+            summary="Get Wisconsin Dataset Information",
+            description="Retrieve comprehensive information about the Wisconsin Breast Cancer Dataset including statistics, feature groups, and clinical context")
 async def get_wisconsin_dataset_info():
-    """Get comprehensive information about the Wisconsin dataset"""
+    """
+    Get comprehensive information about the Wisconsin Breast Cancer Dataset.
+
+    Returns detailed statistics, class distribution, feature information,
+    and clinical context for the Wisconsin Breast Cancer (Diagnostic) dataset
+    from the UCI Machine Learning Repository.
+    """
     try:
         stats = wisconsin_analyzer.get_dataset_statistics()
-        
+
         return WisconsinDatasetInfo(
             dataset_name="Wisconsin Breast Cancer Dataset (Diagnostic)",
             source="UCI Machine Learning Repository",
@@ -71,14 +91,24 @@ async def get_wisconsin_dataset_info():
             }
         )
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error retrieving dataset info: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Error retrieving dataset info: {str(e)}")
 
-@router.get("/api/wisconsin/feature-analysis")
+
+@router.get("/api/feature-analysis",
+            summary="Get Wisconsin Feature Analysis",
+            description="Retrieve detailed analysis of Wisconsin dataset features including correlations, importance, and feature groups")
 async def get_wisconsin_feature_analysis():
-    """Get detailed analysis of Wisconsin dataset features"""
+    """
+    Get detailed analysis of Wisconsin dataset features.
+
+    Returns feature correlations with diagnosis, grouped correlations,
+    top predictive features, and comprehensive feature information
+    for all 30 Wisconsin Breast Cancer Dataset features.
+    """
     try:
         correlation_analysis = wisconsin_analyzer.create_correlation_analysis()
-        
+
         # Get feature descriptions and ranges
         feature_info = {}
         for feature in wisconsin_analyzer.feature_names:
@@ -87,7 +117,7 @@ async def get_wisconsin_feature_analysis():
                 'range': wisconsin_analyzer.get_feature_range(feature),
                 'group': 'mean' if 'mean' in feature else 'se' if 'se' in feature else 'worst'
             }
-        
+
         return {
             "feature_correlations": correlation_analysis['feature_correlations'],
             "group_correlations": correlation_analysis['group_correlations'],
@@ -96,14 +126,27 @@ async def get_wisconsin_feature_analysis():
             "feature_groups": wisconsin_analyzer.feature_groups
         }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error analyzing features: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Error analyzing features: {str(e)}")
 
-@router.get("/api/wisconsin/feature-validation/{feature_name}")
+
+@router.get("/api/feature-validation/{feature_name}",
+            summary="Validate Wisconsin Feature Value",
+            description="Validate a single feature value against Wisconsin dataset ranges and return validation results")
 async def validate_wisconsin_feature(feature_name: str, value: float):
-    """Validate a single feature value against Wisconsin dataset ranges"""
+    """
+    Validate a single feature value against Wisconsin dataset ranges.
+
+    Args:
+        feature_name: Name of the Wisconsin dataset feature
+        value: The value to validate
+
+    Returns validation result with range information and suggestions.
+    """
     try:
-        validation_result = wisconsin_analyzer.validate_feature_input(feature_name, value)
-        
+        validation_result = wisconsin_analyzer.validate_feature_input(
+            feature_name, value)
+
         return {
             "feature_name": feature_name,
             "value": value,
@@ -112,42 +155,56 @@ async def validate_wisconsin_feature(feature_name: str, value: float):
             "range": wisconsin_analyzer.get_feature_range(feature_name)
         }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error validating feature: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Error validating feature: {str(e)}")
 
 # Wisconsin Ensemble Training Endpoints
-@router.post("/api/wisconsin/train-ensemble")
+
+
+@router.post("/api/train-ensemble",
+             summary="Train Wisconsin Ensemble Model",
+             description="Train the Wisconsin-optimized ensemble model with 8 different algorithms")
 async def train_wisconsin_ensemble(
     user: User | None = Depends(get_current_user),
     session: Session = Depends(get_session)
 ):
-    """Train the Wisconsin-optimized ensemble model"""
+    """
+    Train the Wisconsin-optimized ensemble model.
+
+    Trains 8 different machine learning algorithms optimized for the Wisconsin
+    Breast Cancer Dataset and creates an ensemble with weighted predictions.
+    Requires authentication.
+
+    Returns training results, model performance metrics, and evaluation results.
+    """
     if not user:
         raise HTTPException(status_code=401, detail="Not authenticated")
-    
+
     try:
         # Download and prepare dataset
         df = wisconsin_analyzer.download_dataset()
         df_enhanced = wisconsin_analyzer.create_enhanced_features(df)
-        
+
         # Prepare features and target
         X = df_enhanced.drop('diagnosis', axis=1)
         y = df_enhanced['diagnosis']
-        
+
         # Train ensemble
         training_results = wisconsin_ensemble.train_ensemble(
             X.values, y.values, feature_names=X.columns.tolist()
         )
-        
+
         # Evaluate on test set
         X_train, X_test, y_train, y_test = train_test_split(
             X.values, y.values, test_size=0.2, random_state=42, stratify=y.values
         )
-        
-        evaluation_results = wisconsin_ensemble.evaluate_ensemble(X_test, y_test)
-        
+
+        evaluation_results = wisconsin_ensemble.evaluate_ensemble(
+            X_test, y_test)
+
         # Save models
         wisconsin_ensemble.save_models()
-        
+
         return JSONResponse(content={
             "success": True,
             "message": "Wisconsin ensemble trained successfully",
@@ -159,7 +216,7 @@ async def train_wisconsin_ensemble(
                 "enhanced_features": len(X.columns) - len(wisconsin_analyzer.feature_names)
             }
         })
-        
+
     except Exception as e:
         return JSONResponse(
             status_code=500,
@@ -169,13 +226,21 @@ async def train_wisconsin_ensemble(
             }
         )
 
-@router.get("/api/wisconsin/ensemble-status")
+
+@router.get("/api/ensemble-status",
+            summary="Get Wisconsin Ensemble Status",
+            description="Get the current status of Wisconsin ensemble models including loaded models and performance")
 async def get_wisconsin_ensemble_status():
-    """Get status of Wisconsin ensemble models"""
+    """
+    Get status of Wisconsin ensemble models.
+
+    Returns information about which models are currently loaded,
+    their performance metrics, and ensemble weights.
+    """
     try:
         # Try to load existing models
         models_loaded = wisconsin_ensemble.load_models()
-        
+
         return {
             "models_loaded": models_loaded,
             "trained_models": list(wisconsin_ensemble.trained_models.keys()),
@@ -184,30 +249,45 @@ async def get_wisconsin_ensemble_status():
             "model_performance": wisconsin_ensemble.model_performance
         }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error checking ensemble status: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Error checking ensemble status: {str(e)}")
 
 # Wisconsin Prediction Endpoints
-@router.post("/api/wisconsin/predict", response_model=WisconsinPredictionResponse)
+
+
+@router.post("/api/predict",
+             response_model=WisconsinPredictionResponse,
+             summary="Make Wisconsin Breast Cancer Prediction",
+             description="Make a breast cancer prediction using the Wisconsin-optimized ensemble model")
 async def predict_wisconsin_breast_cancer(
     request: WisconsinPredictionRequest,
     user: User | None = Depends(get_current_user),
     session: Session = Depends(get_session)
 ):
-    """Make Wisconsin-optimized breast cancer prediction"""
+    """
+    Make Wisconsin-optimized breast cancer prediction.
+
+    Uses the trained ensemble model to predict breast cancer diagnosis
+    based on the 30 Wisconsin dataset features. Validates all input features
+    against dataset ranges and returns prediction with confidence scores.
+
+    Requires authentication and valid Wisconsin dataset features.
+    """
     if not user:
         raise HTTPException(status_code=401, detail="Not authenticated")
-    
+
     try:
         # Validate all features
         feature_validation = {}
         all_valid = True
-        
+
         for feature_name, value in request.features.items():
-            validation = wisconsin_analyzer.validate_feature_input(feature_name, value)
+            validation = wisconsin_analyzer.validate_feature_input(
+                feature_name, value)
             feature_validation[feature_name] = validation
             if not validation['valid']:
                 all_valid = False
-        
+
         if not all_valid:
             return JSONResponse(
                 status_code=400,
@@ -216,31 +296,31 @@ async def predict_wisconsin_breast_cancer(
                     "feature_validation": feature_validation
                 }
             )
-        
+
         # Check if ensemble is trained
         if not wisconsin_ensemble.trained_models:
             if not wisconsin_ensemble.load_models():
                 raise HTTPException(
-                    status_code=503, 
+                    status_code=503,
                     detail="Wisconsin ensemble not trained. Please train the model first."
                 )
-        
+
         # Prepare features in correct order
         feature_array = np.array([
-            request.features.get(feature, 0.0) 
+            request.features.get(feature, 0.0)
             for feature in wisconsin_analyzer.feature_names
         ]).reshape(1, -1)
-        
+
         # Make prediction
         result = wisconsin_ensemble.predict_ensemble(
-            feature_array, 
+            feature_array,
             return_individual=request.return_individual_predictions
         )
-        
+
         # Determine risk level
         confidence = result['confidence'][0]
         prediction = result['prediction'][0]
-        
+
         if prediction == 0:  # Benign
             if confidence > 0.9:
                 risk_level = "Low"
@@ -255,7 +335,7 @@ async def predict_wisconsin_breast_cancer(
                 risk_level = "Medium-High"
             else:
                 risk_level = "Medium"
-        
+
         # Save prediction to database
         prediction_record = BreastCancerPrediction(
             user_id=user.id,
@@ -264,10 +344,10 @@ async def predict_wisconsin_breast_cancer(
             confidence=float(confidence),
             risk_level=risk_level
         )
-        
+
         session.add(prediction_record)
         session.commit()
-        
+
         response_data = {
             "prediction": result['prediction_label'][0],
             "confidence": float(confidence),
@@ -278,36 +358,47 @@ async def predict_wisconsin_breast_cancer(
             },
             "feature_validation": feature_validation
         }
-        
+
         if request.include_uncertainty:
             response_data["uncertainty"] = float(result['uncertainty'][0])
-        
+
         if request.return_individual_predictions:
             response_data["individual_predictions"] = result['individual_predictions']
-        
-        return WisconsinPredictionResponse(**response_data)
-        
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Prediction error: {str(e)}")
 
-@router.get("/api/wisconsin/feature-importance")
+        return WisconsinPredictionResponse(**response_data)
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Prediction error: {str(e)}")
+
+
+@router.get("/api/feature-importance",
+            summary="Get Wisconsin Feature Importance",
+            description="Get feature importance analysis from Wisconsin ensemble models")
 async def get_wisconsin_feature_importance(
     user: User | None = Depends(get_current_user)
 ):
-    """Get feature importance from Wisconsin ensemble models"""
+    """
+    Get feature importance from Wisconsin ensemble models.
+
+    Returns feature importance analysis from all trained models in the ensemble,
+    grouped by feature types (mean, standard error, worst, enhanced features).
+
+    Requires authentication and trained ensemble models.
+    """
     if not user:
         raise HTTPException(status_code=401, detail="Not authenticated")
-    
+
     try:
         if not wisconsin_ensemble.trained_models:
             if not wisconsin_ensemble.load_models():
                 raise HTTPException(
-                    status_code=503, 
+                    status_code=503,
                     detail="Wisconsin ensemble not trained. Please train the model first."
                 )
-        
+
         importance = wisconsin_ensemble.get_feature_importance()
-        
+
         # Group importance by feature type
         grouped_importance = {
             'mean_features': {},
@@ -315,7 +406,7 @@ async def get_wisconsin_feature_importance(
             'worst_features': {},
             'enhanced_features': {}
         }
-        
+
         for model_name, model_importance in importance.items():
             for feature, imp in model_importance.items():
                 if 'mean' in feature:
@@ -333,40 +424,53 @@ async def get_wisconsin_feature_importance(
                 else:
                     if feature not in grouped_importance['enhanced_features']:
                         grouped_importance['enhanced_features'][feature] = []
-                    grouped_importance['enhanced_features'][feature].append(imp)
-        
+                    grouped_importance['enhanced_features'][feature].append(
+                        imp)
+
         # Average importance across models
         for group in grouped_importance:
             for feature in grouped_importance[group]:
-                grouped_importance[group][feature] = np.mean(grouped_importance[group][feature])
-        
+                grouped_importance[group][feature] = np.mean(
+                    grouped_importance[group][feature])
+
         return {
             "individual_model_importance": importance,
             "grouped_importance": grouped_importance,
             "ensemble_weights": wisconsin_ensemble.ensemble_weights
         }
-        
+
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error getting feature importance: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Error getting feature importance: {str(e)}")
 
 # Wisconsin Analytics Dashboard
-@router.get("/wisconsin-analytics", response_class=HTMLResponse)
+
+
+@router.get("/analytics",
+            response_class=HTMLResponse,
+            summary="Wisconsin Analytics Dashboard",
+            description="Interactive dashboard for Wisconsin dataset analytics and model performance")
 async def wisconsin_analytics_dashboard(
     request: Request,
     user: User | None = Depends(get_current_user),
     session: Session = Depends(get_session)
 ):
-    """Wisconsin dataset analytics dashboard"""
+    """
+    Wisconsin dataset analytics dashboard.
+
+    Provides an interactive dashboard showing dataset statistics,
+    ensemble model status, feature analysis, and user prediction history.
+    """
     if not user:
         return RedirectResponse(url="/signup")
-    
+
     try:
         # Get dataset statistics
         dataset_stats = wisconsin_analyzer.get_dataset_statistics()
-        
+
         # Get ensemble status
         ensemble_status = wisconsin_ensemble.load_models()
-        
+
         # Get user's recent predictions
         recent_predictions = session.exec(
             select(BreastCancerPrediction)
@@ -374,7 +478,7 @@ async def wisconsin_analytics_dashboard(
             .order_by(BreastCancerPrediction.created_at.desc())
             .limit(10)
         ).all()
-        
+
         context = {
             "request": request,
             "user": user,
@@ -392,9 +496,9 @@ async def wisconsin_analytics_dashboard(
             "feature_groups": wisconsin_analyzer.feature_groups,
             "feature_descriptions": wisconsin_analyzer.feature_descriptions
         }
-        
+
         return templates.TemplateResponse("wisconsin_analytics.html", context)
-        
+
     except Exception as e:
         return templates.TemplateResponse("wisconsin_analytics.html", {
             "request": request,
@@ -403,15 +507,25 @@ async def wisconsin_analytics_dashboard(
         })
 
 # Wisconsin Enhanced Prediction Form
-@router.get("/wisconsin-prediction", response_class=HTMLResponse)
+
+
+@router.get("/prediction",
+            response_class=HTMLResponse,
+            summary="Wisconsin Prediction Form",
+            description="Smart prediction form for Wisconsin Breast Cancer Dataset analysis")
 async def wisconsin_prediction_form(
     request: Request,
     user: User | None = Depends(get_current_user)
 ):
-    """Wisconsin-optimized prediction form"""
+    """
+    Wisconsin-optimized prediction form.
+
+    Provides a smart form interface for entering Wisconsin dataset features
+    with real-time validation, contextual help, and feature descriptions.
+    """
     if not user:
         return RedirectResponse(url="/signup")
-    
+
     try:
         # Get feature information for the form
         feature_info = {}
@@ -421,7 +535,7 @@ async def wisconsin_prediction_form(
                 'range': wisconsin_analyzer.get_feature_range(feature),
                 'group': 'mean' if 'mean' in feature else 'se' if 'se' in feature else 'worst'
             }
-        
+
         context = {
             "request": request,
             "user": user,
@@ -429,9 +543,9 @@ async def wisconsin_prediction_form(
             "feature_groups": wisconsin_analyzer.feature_groups,
             "dataset_info": wisconsin_analyzer.get_dataset_statistics()
         }
-        
+
         return templates.TemplateResponse("wisconsin_prediction.html", context)
-        
+
     except Exception as e:
         return templates.TemplateResponse("wisconsin_prediction.html", {
             "request": request,
@@ -439,38 +553,49 @@ async def wisconsin_prediction_form(
             "error": f"Error loading form: {str(e)}"
         })
 
-@router.post("/wisconsin-prediction")
+
+@router.post("/prediction",
+             summary="Submit Wisconsin Prediction",
+             description="Submit Wisconsin prediction form data and get AI analysis results")
 async def submit_wisconsin_prediction(
     request: Request,
     user: User | None = Depends(get_current_user),
     session: Session = Depends(get_current_user)
 ):
-    """Submit Wisconsin prediction form data"""
+    """
+    Submit Wisconsin prediction form data.
+
+    Processes form data from the Wisconsin prediction form, validates features,
+    makes predictions using the ensemble model, and returns results.
+    """
     if not user:
         return RedirectResponse(url="/signup")
-    
+
     try:
         # Extract form data
         form_data = await request.form()
-        
+
         # Convert form data to features dictionary
         features = {}
         validation_errors = []
-        
+
         for feature_name in wisconsin_analyzer.feature_names:
             if feature_name in form_data:
                 try:
                     value = float(form_data[feature_name])
-                    validation = wisconsin_analyzer.validate_feature_input(feature_name, value)
-                    
+                    validation = wisconsin_analyzer.validate_feature_input(
+                        feature_name, value)
+
                     if validation['valid']:
                         features[feature_name] = value
                     else:
-                        validation_errors.append(f"{feature_name}: {validation['message']}")
-                        
+                        validation_errors.append(
+                            f"{feature_name}: {validation['message']}")
+
                 except ValueError:
-                    validation_errors.append(f"{feature_name}: Invalid number format")
-        
+                    validation_errors.append(
+                        f"{feature_name}: Invalid number format")
+
         if validation_errors:
             return templates.TemplateResponse("wisconsin_prediction.html", {
                 "request": request,
@@ -478,26 +603,26 @@ async def submit_wisconsin_prediction(
                 "validation_errors": validation_errors,
                 "form_data": dict(form_data)
             })
-        
+
         # Make prediction using the API
         prediction_request = WisconsinPredictionRequest(
             features=features,
             include_uncertainty=True,
             return_individual_predictions=False
         )
-        
+
         # Call the prediction endpoint
         prediction_result = await predict_wisconsin_breast_cancer(
             prediction_request, user, session
         )
-        
+
         return templates.TemplateResponse("wisconsin_prediction.html", {
             "request": request,
             "user": user,
             "prediction_result": prediction_result.dict(),
             "success": "Prediction completed successfully"
         })
-        
+
     except Exception as e:
         return templates.TemplateResponse("wisconsin_prediction.html", {
             "request": request,
