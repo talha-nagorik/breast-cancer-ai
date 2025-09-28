@@ -15,6 +15,7 @@ Author: AI Medical Records Team
 Version: 1.0.0
 """
 
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request, Depends
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
@@ -26,6 +27,20 @@ from .routers import users, medical, ml, wisconsin
 from .internal import admin
 from .dependencies import get_current_user
 from .models.models import User
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """
+    Application lifespan event handler.
+
+    Handles startup and shutdown events for the FastAPI application.
+    Initializes the database and applies any pending migrations on startup.
+    """
+    # Startup
+    initialize_database()
+    yield
+    # Shutdown (if needed, add cleanup code here)
 
 # Initialize FastAPI application with comprehensive configuration
 app = FastAPI(
@@ -59,6 +74,7 @@ app = FastAPI(
         "name": "MIT License",
         "url": "https://opensource.org/licenses/MIT",
     },
+    lifespan=lifespan,
 )
 
 # Configure static file serving
@@ -78,21 +94,7 @@ app.include_router(wisconsin.router)   # Wisconsin dataset analysis
 app.include_router(admin.router)       # Admin panel and internal operations
 
 
-@app.on_event("startup")
-async def on_startup() -> None:
-    """
-    Application startup event handler.
-
-    Initializes the database and applies any pending migrations
-    when the application starts up.
-
-    This ensures the database is ready before handling any requests.
-    """
-    initialize_database()
-
 # Home page
-
-
 @app.get("/",
          response_class=HTMLResponse,
          tags=["Application"],
