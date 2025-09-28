@@ -4,7 +4,7 @@ from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.gzip import GZipMiddleware
 
-from .database.database import create_db_and_tables
+from .database.init import initialize_database
 from .routers import users, medical
 from .internal import admin
 
@@ -22,12 +22,16 @@ app.include_router(users.router)
 app.include_router(medical.router)
 app.include_router(admin.router)
 
-# Create database tables on startup
+# Initialize database and apply migrations on startup
+
+
 @app.on_event("startup")
 def on_startup():
-    create_db_and_tables()
+    initialize_database()
 
 # Home page
+
+
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request, user: dict | None = None):
     # Sample data for the home page
