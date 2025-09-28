@@ -42,7 +42,7 @@ document.addEventListener('alpine:init', () => {
                     email: this.formData.email.trim(),
                     password: this.formData.password
                 },
-                '/login',
+                '/api/login',
                 {
                     method: 'POST',
                     onSuccess: (data) => {
@@ -163,13 +163,13 @@ document.addEventListener('alpine:init', () => {
                     password: this.formData.password,
                     confirm_password: this.formData.confirm_password
                 },
-                '/signup',
+                '/api/signup',
                 {
                     method: 'POST',
                     onSuccess: (data) => {
-                        this.showNotification('Account created successfully! Redirecting to login...', 'success');
+                        this.showNotification('Account created successfully! Redirecting to dashboard...', 'success');
                         setTimeout(() => {
-                            window.location.href = '/login';
+                            window.location.href = '/dashboard';
                         }, 1500);
                     },
                     onError: (error) => {
@@ -195,6 +195,15 @@ document.addEventListener('alpine:init', () => {
             }
             
             return errors.length === 0;
+        },
+        
+        clearFieldError(field) {
+            delete this.errors[field];
+        },
+        
+        clearAllErrors() {
+            this.errors = {};
+            this.touched = {};
         },
         
         showNotification(message, type = 'info') {
