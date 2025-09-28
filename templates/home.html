@@ -2,529 +2,114 @@
 
 {% block title %}Breast Cancer AI - Early Detection Saves Lives{% endblock %}
 
-{% block extra_css %}
-<style>
-  .home-container {
-    min-height: 100vh;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    position: relative;
-  }
-
-  /* Hero Section */
-  .hero-section {
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    padding: 8rem 2rem 4rem;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .hero-section::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
-    opacity: 0.3;
-  }
-
-  .hero-content {
-    max-width: 1200px;
-    margin: 0 auto;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 4rem;
-    align-items: center;
-    position: relative;
-    z-index: 2;
-  }
-
-  .hero-title {
-    font-size: 3.5rem;
-    font-weight: 800;
-    line-height: 1.2;
-    margin-bottom: 1.5rem;
-    color: white;
-  }
-
-  .highlight {
-    display: block;
-    background: linear-gradient(45deg, #ffd700, #ffed4e);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    font-size: 2.5rem;
-    margin-top: 0.5rem;
-  }
-
-  .hero-subtitle {
-    font-size: 1.2rem;
-    color: rgba(255, 255, 255, 0.9);
-    margin-bottom: 2rem;
-    line-height: 1.6;
-  }
-
-  .hero-stats {
-    display: flex;
-    gap: 2rem;
-    margin-bottom: 2rem;
-  }
-
-  .stat-item {
-    text-align: center;
-  }
-
-  .stat-number {
-    display: block;
-    font-size: 2rem;
-    font-weight: 800;
-    color: #ffd700;
-    margin-bottom: 0.5rem;
-  }
-
-  .stat-label {
-    font-size: 0.9rem;
-    color: rgba(255, 255, 255, 0.8);
-    text-transform: uppercase;
-    letter-spacing: 1px;
-  }
-
-  .hero-buttons {
-    display: flex;
-    gap: 1rem;
-    flex-wrap: wrap;
-  }
-
-  .hero-visual {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    position: relative;
-  }
-
-  .medical-illustration {
-    width: 300px;
-    height: 300px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    backdrop-filter: blur(10px);
-    border: 2px solid rgba(255, 255, 255, 0.2);
-  }
-
-  .scan-animation {
-    width: 200px;
-    height: 200px;
-    border: 3px solid #ffd700;
-    border-radius: 50%;
-    animation: scan 3s infinite;
-  }
-
-  .pulse-effect {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    border: 2px solid rgba(255, 215, 0, 0.3);
-    border-radius: 50%;
-    animation: pulse 2s infinite;
-  }
-
-  /* About Section */
-  .about-section {
-    padding: 6rem 0;
-    background: white;
-  }
-
-  .about-content {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 2rem;
-  }
-
-  .about-card {
-    background: white;
-    padding: 2rem;
-    border-radius: 20px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-    text-align: center;
-    transition: all 0.3s ease;
-    border: 1px solid #f0f0f0;
-  }
-
-  .about-card:hover {
-    transform: translateY(-10px);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
-  }
-
-  .card-icon {
-    font-size: 3rem;
-    margin-bottom: 1rem;
-  }
-
-  .about-card h3 {
-    font-size: 1.5rem;
-    margin-bottom: 1rem;
-    color: #333;
-  }
-
-  .about-card p {
-    color: #666;
-    line-height: 1.6;
-  }
-
-  /* Symptoms Section */
-  .symptoms-section {
-    padding: 6rem 0;
-    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-  }
-
-  .symptoms-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 2rem;
-  }
-
-  .symptom-item {
-    background: white;
-    padding: 2rem;
-    border-radius: 15px;
-    text-align: center;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease;
-  }
-
-  .symptom-item:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-  }
-
-  .symptom-icon {
-    font-size: 2.5rem;
-    margin-bottom: 1rem;
-  }
-
-  .symptom-item h4 {
-    font-size: 1.2rem;
-    margin-bottom: 0.5rem;
-    color: #333;
-  }
-
-  .symptom-item p {
-    color: #666;
-    font-size: 0.9rem;
-  }
-
-  /* Detection Section */
-  .detection-section {
-    padding: 6rem 0;
-    background: white;
-  }
-
-  .detection-steps {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 2rem;
-  }
-
-  .step-item {
-    display: flex;
-    align-items: flex-start;
-    gap: 1rem;
-    padding: 2rem;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border-radius: 15px;
-    color: white;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .step-item::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
-    opacity: 0.3;
-  }
-
-  .step-number {
-    background: rgba(255, 255, 255, 0.2);
-    color: white;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    font-size: 1.2rem;
-    flex-shrink: 0;
-  }
-
-  .step-content h4 {
-    font-size: 1.2rem;
-    margin-bottom: 0.5rem;
-  }
-
-  .step-content p {
-    opacity: 0.9;
-    font-size: 0.9rem;
-  }
-
-  /* Risk Factors Section */
-  .risk-factors-section {
-    padding: 6rem 0;
-    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-    color: white;
-  }
-
-  .risk-factors-section .section-title {
-    color: white;
-    -webkit-text-fill-color: white;
-  }
-
-  .risk-factors-section .section-subtitle {
-    color: rgba(255, 255, 255, 0.8);
-  }
-
-  .risk-factors-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 3rem;
-  }
-
-  .risk-category {
-    background: rgba(255, 255, 255, 0.1);
-    padding: 2rem;
-    border-radius: 15px;
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-  }
-
-  .risk-category h3 {
-    font-size: 1.5rem;
-    margin-bottom: 1rem;
-    color: #ffd700;
-  }
-
-  .risk-list {
-    list-style: none;
-  }
-
-  .risk-list li {
-    padding: 0.5rem 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    position: relative;
-    padding-left: 1.5rem;
-  }
-
-  .risk-list li::before {
-    content: "•";
-    color: #ffd700;
-    position: absolute;
-    left: 0;
-    font-weight: bold;
-  }
-
-  .risk-list li:last-child {
-    border-bottom: none;
-  }
-
-  /* CTA Section */
-  .cta-section {
-    padding: 6rem 0;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    text-align: center;
-  }
-
-  .cta-content h2 {
-    font-size: 2.5rem;
-    margin-bottom: 1rem;
-  }
-
-  .cta-content p {
-    font-size: 1.1rem;
-    margin-bottom: 2rem;
-    opacity: 0.9;
-  }
-
-  .cta-buttons {
-    display: flex;
-    gap: 1rem;
-    justify-content: center;
-    flex-wrap: wrap;
-  }
-
-  /* Responsive Design */
-  @media (max-width: 768px) {
-    .hero-content {
-      grid-template-columns: 1fr;
-      text-align: center;
-    }
-
-    .hero-title {
-      font-size: 2.5rem;
-    }
-
-    .highlight {
-      font-size: 2rem;
-    }
-
-    .hero-stats {
-      justify-content: center;
-    }
-
-    .medical-illustration {
-      width: 250px;
-      height: 250px;
-    }
-
-    .scan-animation {
-      width: 150px;
-      height: 150px;
-    }
-  }
-
-  @media (max-width: 480px) {
-    .hero-section {
-      padding: 6rem 1rem 2rem;
-    }
-
-    .hero-title {
-      font-size: 2rem;
-    }
-
-    .highlight {
-      font-size: 1.5rem;
-    }
-
-    .hero-buttons {
-      flex-direction: column;
-      align-items: center;
-    }
-
-    .medical-illustration {
-      width: 200px;
-      height: 200px;
-    }
-
-    .scan-animation {
-      width: 120px;
-      height: 120px;
-    }
-  }
-</style>
-{% endblock %}
+{% block extra_css %}{% endblock %}
 
 {% block content %}
-<div class="home-container">
-  <section id="home" class="hero-section">
-    <div class="hero-content">
-      <div class="hero-text">
-        <h1 class="hero-title">
+<div class="min-h-screen bg-gradient-to-br from-indigo-500 to-purple-600 relative overflow-hidden">
+  <section id="home" class="min-h-screen flex items-center px-8 pt-32 pb-16 relative">
+    <!-- Background Pattern -->
+    <div class="absolute inset-0 opacity-30" style="background-image: url('data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 100\"><defs><pattern id=\"grain\" width=\"100\" height=\"100\" patternUnits=\"userSpaceOnUse\"><circle cx=\"50\" cy=\"50\" r=\"1\" fill=\"white\" opacity=\"0.1\"/></pattern></defs><rect width=\"100\" height=\"100\" fill=\"url(%23grain)\"/></svg>');"></div>
+    
+    <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center relative z-10">
+      <div class="text-center lg:text-left">
+        <h1 class="text-5xl lg:text-6xl font-extrabold leading-tight mb-6 text-white">
           Early Detection Saves Lives
-          <span class="highlight">Breast Cancer Detection</span>
+          <span class="block bg-gradient-to-r from-yellow-400 to-yellow-300 bg-clip-text text-transparent text-4xl lg:text-5xl mt-2">
+            Breast Cancer Detection
+          </span>
         </h1>
-        <p class="hero-subtitle">
+        <p class="text-xl text-white/90 mb-8 leading-relaxed">
           Advanced AI-powered breast cancer detection system providing
           accurate, early diagnosis to improve survival rates and patient
           outcomes.
         </p>
-        <div class="hero-stats">
-          <div class="stat-item">
-            <span class="stat-number">{{ stats.accuracy_rate }}%</span>
-            <span class="stat-label">Accuracy Rate</span>
+        <div class="flex flex-wrap gap-8 mb-8 justify-center lg:justify-start">
+          <div class="text-center">
+            <span class="block text-3xl font-extrabold text-yellow-400 mb-2">{{ stats.accuracy_rate }}%</span>
+            <span class="text-sm text-white/80 uppercase tracking-wider">Accuracy Rate</span>
           </div>
-          <div class="stat-item">
-            <span class="stat-number">{{ stats.lives_saved }}+</span>
-            <span class="stat-label">Lives Saved</span>
+          <div class="text-center">
+            <span class="block text-3xl font-extrabold text-yellow-400 mb-2">{{ stats.lives_saved }}+</span>
+            <span class="text-sm text-white/80 uppercase tracking-wider">Lives Saved</span>
           </div>
-          <div class="stat-item">
-            <span class="stat-number">24/7</span>
-            <span class="stat-label">Available</span>
+          <div class="text-center">
+            <span class="block text-3xl font-extrabold text-yellow-400 mb-2">24/7</span>
+            <span class="text-sm text-white/80 uppercase tracking-wider">Available</span>
           </div>
         </div>
-        <div class="hero-buttons">
-          <a href="{{ url_for('signup_form') }}" class="btn btn-primary">Get Started</a>
-          <a href="{{ url_for('login_form') }}" class="btn btn-secondary">Sign In</a>
+        <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+          <a href="{{ url_for('signup_form') }}" class="px-8 py-4 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">Get Started</a>
+          <a href="{{ url_for('login_form') }}" class="px-8 py-4 bg-white/10 backdrop-blur-sm text-white font-semibold rounded-full border-2 border-white/20 hover:bg-white hover:text-indigo-600 transition-all duration-300 hover:-translate-y-1">Sign In</a>
         </div>
       </div>
-      <div class="hero-visual">
-        <div class="medical-illustration">
-          <div class="scan-animation"></div>
-          <div class="pulse-effect"></div>
+      <div class="flex justify-center items-center">
+        <div class="w-80 h-80 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center relative border-2 border-white/20">
+          <div class="w-52 h-52 border-4 border-yellow-400 rounded-full animate-pulse"></div>
+          <div class="absolute inset-0 border-2 border-yellow-400/30 rounded-full animate-ping"></div>
         </div>
       </div>
     </div>
   </section>
 
-  <section id="about" class="about-section">
-    <div class="container">
-      <div class="section-header">
-        <h2 class="section-title">About Breast Cancer</h2>
-        <p class="section-subtitle">
+  <section id="about" class="py-24 bg-white">
+    <div class="max-w-7xl mx-auto px-8">
+      <div class="text-center mb-16">
+        <h2 class="text-4xl lg:text-5xl font-bold mb-4 bg-gradient-to-r from-indigo-500 to-purple-600 bg-clip-text text-transparent">About Breast Cancer</h2>
+        <p class="text-xl text-gray-600 max-w-3xl mx-auto">
           Understanding breast cancer is the first step towards prevention
           and early detection
         </p>
       </div>
-      <div class="about-content">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {% for card in about_cards %}
-        <div class="about-card">
-          <div class="card-icon">{{ card.icon }}</div>
-          <h3>{{ card.title }}</h3>
-          <p>{{ card.description }}</p>
+        <div class="bg-white p-8 rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 border border-gray-100 text-center">
+          <div class="text-5xl mb-4">{{ card.icon }}</div>
+          <h3 class="text-2xl font-bold text-gray-800 mb-4">{{ card.title }}</h3>
+          <p class="text-gray-600 leading-relaxed">{{ card.description }}</p>
         </div>
         {% endfor %}
       </div>
     </div>
   </section>
 
-  <section id="symptoms" class="symptoms-section">
-    <div class="container">
-      <div class="section-header">
-        <h2 class="section-title">Common Symptoms & Signs</h2>
-        <p class="section-subtitle">
+  <section id="symptoms" class="py-24 bg-gradient-to-br from-slate-50 to-blue-50">
+    <div class="max-w-7xl mx-auto px-8">
+      <div class="text-center mb-16">
+        <h2 class="text-4xl lg:text-5xl font-bold mb-4 bg-gradient-to-r from-indigo-500 to-purple-600 bg-clip-text text-transparent">Common Symptoms & Signs</h2>
+        <p class="text-xl text-gray-600 max-w-3xl mx-auto">
           Be aware of these warning signs and consult a healthcare
           professional if you notice any changes
         </p>
       </div>
-      <div class="symptoms-grid">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {% for symptom in symptoms %}
-        <div class="symptom-item">
-          <div class="symptom-icon">{{ symptom.icon }}</div>
-          <h4>{{ symptom.title }}</h4>
-          <p>{{ symptom.description }}</p>
+        <div class="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 text-center">
+          <div class="text-4xl mb-4">{{ symptom.icon }}</div>
+          <h4 class="text-xl font-semibold text-gray-800 mb-3">{{ symptom.title }}</h4>
+          <p class="text-gray-600 text-sm">{{ symptom.description }}</p>
         </div>
         {% endfor %}
       </div>
     </div>
   </section>
 
-  <section id="detection" class="detection-section">
-    <div class="container">
-      <div class="section-header">
-        <h2 class="section-title">Our Detection Process</h2>
-        <p class="section-subtitle">
+  <section id="detection" class="py-24 bg-white">
+    <div class="max-w-7xl mx-auto px-8">
+      <div class="text-center mb-16">
+        <h2 class="text-4xl lg:text-5xl font-bold mb-4 bg-gradient-to-r from-indigo-500 to-purple-600 bg-clip-text text-transparent">Our Detection Process</h2>
+        <p class="text-xl text-gray-600 max-w-3xl mx-auto">
           Advanced AI technology for accurate and reliable breast cancer
           detection
         </p>
       </div>
-      <div class="detection-steps">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
         {% for step in detection_steps %}
-        <div class="step-item">
-          <div class="step-number">{{ step.number }}</div>
-          <div class="step-content">
-            <h4>{{ step.title }}</h4>
-            <p>{{ step.description }}</p>
+        <div class="bg-gradient-to-br from-indigo-500 to-purple-600 p-8 rounded-2xl text-white relative overflow-hidden">
+          <div class="absolute inset-0 opacity-30" style="background-image: url('data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 100\"><defs><pattern id=\"grain\" width=\"100\" height=\"100\" patternUnits=\"userSpaceOnUse\"><circle cx=\"50\" cy=\"50\" r=\"1\" fill=\"white\" opacity=\"0.1\"/></pattern></defs><rect width=\"100\" height=\"100\" fill=\"url(%23grain)\"/></svg>');"></div>
+          <div class="relative z-10">
+            <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center text-xl font-bold mb-4">{{ step.number }}</div>
+            <h4 class="text-xl font-semibold mb-3">{{ step.title }}</h4>
+            <p class="text-white/90 text-sm">{{ step.description }}</p>
           </div>
         </div>
         {% endfor %}
@@ -532,22 +117,25 @@
     </div>
   </section>
 
-  <section class="risk-factors-section">
-    <div class="container">
-      <div class="section-header">
-        <h2 class="section-title">Risk Factors</h2>
-        <p class="section-subtitle">
+  <section class="py-24 bg-gradient-to-br from-pink-400 to-red-500 text-white">
+    <div class="max-w-7xl mx-auto px-8">
+      <div class="text-center mb-16">
+        <h2 class="text-4xl lg:text-5xl font-bold mb-4 text-white">Risk Factors</h2>
+        <p class="text-xl text-white/80 max-w-3xl mx-auto">
           Understanding your risk factors can help in early detection and
           prevention
         </p>
       </div>
-      <div class="risk-factors-grid">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
         {% for category in risk_factors %}
-        <div class="risk-category">
-          <h3>{{ category.title }}</h3>
-          <ul class="risk-list">
+        <div class="bg-white/10 backdrop-blur-md p-8 rounded-2xl border border-white/20">
+          <h3 class="text-2xl font-bold mb-6 text-yellow-300">{{ category.title }}</h3>
+          <ul class="space-y-4">
             {% for factor in category.factors %}
-            <li>{{ factor }}</li>
+            <li class="flex items-start gap-3">
+              <span class="text-yellow-300 font-bold mt-1">•</span>
+              <span class="text-white/90">{{ factor }}</span>
+            </li>
             {% endfor %}
           </ul>
         </div>
@@ -556,17 +144,15 @@
     </div>
   </section>
 
-  <section class="cta-section">
-    <div class="container">
-      <div class="cta-content">
-        <h2>Ready to Take Control of Your Health?</h2>
-        <p>
-          Join thousands of women who trust our AI-powered detection system
-        </p>
-        <div class="cta-buttons">
-          <a href="{{ url_for('signup_form') }}" class="btn btn-primary">Start Free Assessment</a>
-          <a href="{{ url_for('login_form') }}" class="btn btn-outline">Sign In</a>
-        </div>
+  <section class="py-24 bg-gradient-to-br from-indigo-500 to-purple-600 text-white text-center">
+    <div class="max-w-4xl mx-auto px-8">
+      <h2 class="text-4xl lg:text-5xl font-bold mb-6">Ready to Take Control of Your Health?</h2>
+      <p class="text-xl text-white/90 mb-12">
+        Join thousands of women who trust our AI-powered detection system
+      </p>
+      <div class="flex flex-col sm:flex-row gap-6 justify-center">
+        <a href="{{ url_for('signup_form') }}" class="px-8 py-4 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">Start Free Assessment</a>
+        <a href="{{ url_for('login_form') }}" class="px-8 py-4 bg-white/10 backdrop-blur-sm text-white font-semibold rounded-full border-2 border-white/20 hover:bg-white hover:text-indigo-600 transition-all duration-300 hover:-translate-y-1">Sign In</a>
       </div>
     </div>
   </section>

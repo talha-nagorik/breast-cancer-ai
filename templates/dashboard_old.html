@@ -1,0 +1,1232 @@
+{% extends "base.html" %}
+
+{% block title %}Patient Dashboard - BreastCare AI{% endblock %}
+
+{% block extra_css %}{% endblock %}
+
+{% block content %}
+  .dashboard-header {
+    background: white;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    padding: 1rem 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .header-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 2rem;
+  }
+
+  .header-left h1 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 0.25rem;
+  }
+
+  .header-left p {
+    color: #666;
+    font-size: 0.9rem;
+  }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .user-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .user-avatar {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(45deg, #667eea, #764ba2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    font-size: 1.1rem;
+  }
+
+  .user-details {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .user-name {
+    font-weight: 600;
+    color: #333;
+    font-size: 0.9rem;
+  }
+
+  .user-role {
+    font-size: 0.8rem;
+    color: #666;
+  }
+
+  /* Navigation */
+  .dashboard-nav {
+    background: white;
+    border-bottom: 1px solid #e5e7eb;
+    padding: 0;
+  }
+
+  .nav-tabs {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    padding: 0 2rem;
+  }
+
+  .nav-tab {
+    background: none;
+    border: none;
+    padding: 1rem 1.5rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #666;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-bottom: 3px solid transparent;
+    position: relative;
+  }
+
+  .nav-tab:hover {
+    color: #667eea;
+    background: rgba(102, 126, 234, 0.05);
+  }
+
+  .nav-tab.active {
+    color: #667eea;
+    border-bottom-color: #667eea;
+    background: rgba(102, 126, 234, 0.05);
+  }
+
+  /* Main Content */
+  .dashboard-main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+  }
+
+  /* Overview Section */
+  .overview-section {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .stat-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: all 0.3s ease;
+  }
+
+  .stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+  }
+
+  .stat-icon {
+    font-size: 2rem;
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(45deg, #667eea, #764ba2);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+  }
+
+  .stat-content h3 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 0.25rem;
+  }
+
+  .stat-content p {
+    color: #666;
+    font-size: 0.9rem;
+  }
+
+  /* Recent Activity */
+  .recent-activity {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  }
+
+  .recent-activity h2 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 1rem;
+  }
+
+  .activity-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .activity-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: #f8fafc;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+  }
+
+  .activity-item:hover {
+    background: #f1f5f9;
+  }
+
+  .activity-icon {
+    font-size: 1.2rem;
+    width: 40px;
+    height: 40px;
+    background: #e0e7ff;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .activity-content {
+    flex: 1;
+  }
+
+  .activity-content h4 {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 0.25rem;
+  }
+
+  .activity-content p {
+    color: #666;
+    font-size: 0.9rem;
+  }
+
+  .activity-status {
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    color: white;
+    font-size: 0.8rem;
+    font-weight: 500;
+  }
+
+  /* Quick Actions */
+  .quick-actions {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  }
+
+  .quick-actions h2 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 1rem;
+  }
+
+  .actions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+  }
+
+  .action-btn {
+    background: #f8fafc;
+    border: 2px solid #e2e8f0;
+    padding: 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    text-align: center;
+  }
+
+  .action-btn:hover {
+    background: #667eea;
+    color: white;
+    border-color: #667eea;
+    transform: translateY(-2px);
+  }
+
+  .action-icon {
+    font-size: 1.5rem;
+  }
+
+  /* Records Section */
+  .records-section {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+
+  .section-header h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #333;
+  }
+
+  /* Add Record Form */
+  .add-record-form {
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    margin-bottom: 2rem;
+  }
+
+  .add-record-form h3 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 1.5rem;
+  }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .form-group.full-width {
+    grid-column: 1 / -1;
+  }
+
+  .form-group label {
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+  }
+
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    padding: 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+  }
+
+  .form-group input:focus,
+  .form-group select:focus,
+  .form-group textarea:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  }
+
+  .form-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+  }
+
+  /* Records List */
+  .records-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .record-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+  }
+
+  .record-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+  }
+
+  .record-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+
+  .record-type {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .type-icon {
+    font-size: 1.2rem;
+    width: 40px;
+    height: 40px;
+    background: #e0e7ff;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .record-type h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #333;
+  }
+
+  .record-status {
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    color: white;
+    font-size: 0.8rem;
+    font-weight: 500;
+  }
+
+  .record-details {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .detail-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .detail-label {
+    font-size: 0.8rem;
+    color: #666;
+    font-weight: 500;
+  }
+
+  .detail-value {
+    font-size: 0.9rem;
+    color: #333;
+  }
+
+  .record-actions {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  /* Profile Section */
+  .profile-section {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  .profile-header {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  }
+
+  .profile-avatar {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(45deg, #667eea, #764ba2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    font-size: 2rem;
+  }
+
+  .profile-info h2 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 0.5rem;
+  }
+
+  .profile-info p {
+    color: #666;
+    font-size: 0.9rem;
+  }
+
+  .profile-content {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  .profile-section-card {
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  }
+
+  .profile-section-card h3 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 1.5rem;
+  }
+
+  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+  }
+
+  .info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .info-item.full-width {
+    grid-column: 1 / -1;
+  }
+
+  .info-item label {
+    font-weight: 500;
+    color: #333;
+    font-size: 0.9rem;
+  }
+
+  .info-item input,
+  .info-item select,
+  .info-item textarea {
+    padding: 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+  }
+
+  .info-item input:focus,
+  .info-item select:focus,
+  .info-item textarea:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  }
+
+  .profile-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+  }
+
+  /* Family History Section */
+  .family-section {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  .family-history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .family-member-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.3s ease;
+  }
+
+  .family-member-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+  }
+
+  .member-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .member-relation {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .relation-icon {
+    font-size: 1.2rem;
+    width: 40px;
+    height: 40px;
+    background: #e0e7ff;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .member-relation h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #333;
+  }
+
+  .member-details {
+    display: flex;
+    gap: 2rem;
+  }
+
+  .member-actions {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .family-history-summary {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  }
+
+  .family-history-summary h3 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 1rem;
+  }
+
+  .summary-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+  }
+
+  .summary-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background: #f8fafc;
+    border-radius: 8px;
+  }
+
+  .summary-label {
+    color: #666;
+    font-size: 0.9rem;
+  }
+
+  .summary-value {
+    font-weight: 600;
+    color: #333;
+    font-size: 1.1rem;
+  }
+
+  /* Button Styles */
+  .btn-small {
+    padding: 0.5rem 1rem;
+    font-size: 0.8rem;
+  }
+
+  .btn-danger {
+    background: #ef4444;
+    color: white;
+  }
+
+  .btn-danger:hover {
+    background: #dc2626;
+  }
+
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .header-content {
+      flex-direction: column;
+      gap: 1rem;
+      text-align: center;
+    }
+
+    .nav-tabs {
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .nav-tab {
+      padding: 0.75rem 1rem;
+      font-size: 0.8rem;
+    }
+
+    .dashboard-main {
+      padding: 1rem;
+    }
+
+    .stats-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .actions-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .form-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .record-details {
+      grid-template-columns: 1fr;
+    }
+
+    .family-member-card {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+
+    .member-info {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .member-details {
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .profile-header {
+      flex-direction: column;
+      text-align: center;
+    }
+
+    .info-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .stats-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .nav-tabs {
+      flex-direction: column;
+    }
+
+    .nav-tab {
+      text-align: center;
+    }
+
+    .form-actions,
+    .profile-actions {
+      flex-direction: column;
+    }
+
+    .record-actions {
+      flex-direction: column;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+  <!-- Header -->
+  <header class="dashboard-header">
+    <div class="header-content">
+      <div class="header-left">
+        <h1>Patient Dashboard</h1>
+        <p id="welcome-message">Welcome back, {{ user.name }}</p>
+      </div>
+      <div class="header-right">
+        <div class="user-info">
+          <div class="user-avatar">
+            <span id="user-avatar">{{ user.name[0] }}</span>
+          </div>
+          <div class="user-details">
+            <span class="user-name" id="user-name">{{ user.name }}</span>
+            <span class="user-role">Patient</span>
+          </div>
+        </div>
+        <a href="{{ url_for('logout') }}" class="btn btn-logout">Logout</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Navigation Tabs -->
+  <nav class="dashboard-nav">
+    <div class="nav-tabs">
+      <button class="nav-tab active" onclick="setActiveTab('overview')">
+        📊 Overview
+      </button>
+      <button class="nav-tab" onclick="setActiveTab('records')">
+        📋 Medical Records
+      </button>
+      <button class="nav-tab" onclick="setActiveTab('profile')">
+        👤 Profile
+      </button>
+      <button class="nav-tab" onclick="setActiveTab('family')">
+        👨‍👩‍👧‍👦 Family History
+      </button>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="dashboard-main">
+    <!-- Overview Tab -->
+    <div id="overview-tab" class="overview-section">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon">📋</div>
+          <div class="stat-content">
+            <h3 id="total-records">{{ stats.total_records }}</h3>
+            <p>Total Records</p>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">✅</div>
+          <div class="stat-content">
+            <h3 id="completed-records">{{ stats.completed_records }}</h3>
+            <p>Completed</p>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">⏳</div>
+          <div class="stat-content">
+            <h3 id="pending-records">{{ stats.pending_records }}</h3>
+            <p>Pending</p>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">🏥</div>
+          <div class="stat-content">
+            <h3 id="total-doctors">{{ stats.total_doctors }}</h3>
+            <p>Doctors</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="recent-activity">
+        <h2>Recent Activity</h2>
+        <div class="activity-list" id="activity-list">
+          {% for activity in recent_activities %}
+          <div class="activity-item">
+            <div class="activity-icon">📋</div>
+            <div class="activity-content">
+              <h4>{{ activity.type }}</h4>
+              <p>{{ activity.date }} - {{ activity.doctor }}</p>
+            </div>
+            <div class="activity-status" style="background-color: {{ activity.status_color }}">
+              {{ activity.status }}
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="quick-actions">
+        <h2>Quick Actions</h2>
+        <div class="actions-grid">
+          <button class="action-btn" onclick="setActiveTab('records')">
+            <span class="action-icon">➕</span>
+            <span>Add New Record</span>
+          </button>
+          <button class="action-btn">
+            <span class="action-icon">📅</span>
+            <span>Schedule Appointment</span>
+          </button>
+          <button class="action-btn">
+            <span class="action-icon">📞</span>
+            <span>Contact Doctor</span>
+          </button>
+          <button class="action-btn">
+            <span class="action-icon">📊</span>
+            <span>View Reports</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Medical Records Tab -->
+    <div id="records-tab" class="records-section" style="display: none">
+      <div class="section-header">
+        <h2>Medical Records</h2>
+        <button class="btn btn-primary" onclick="showAddForm()">
+          + Add New Record
+        </button>
+      </div>
+
+      <div id="add-record-form" class="add-record-form" style="display: none">
+        <h3>Add New Medical Record</h3>
+        <form method="POST" action="{{ url_for('add_record') }}">
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Record Type</label>
+              <select name="record_type" required>
+                <option value="">Select type</option>
+                <option value="Mammogram">Mammogram</option>
+                <option value="Ultrasound">Ultrasound</option>
+                <option value="Biopsy">Biopsy</option>
+                <option value="Blood Test">Blood Test</option>
+                <option value="Physical Exam">Physical Exam</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Date</label>
+              <input type="date" name="record_date" required />
+            </div>
+            <div class="form-group">
+              <label>Doctor</label>
+              <input
+                type="text"
+                name="record_doctor"
+                placeholder="Doctor's name"
+                required
+              />
+            </div>
+            <div class="form-group full-width">
+              <label>Notes</label>
+              <textarea
+                name="record_notes"
+                placeholder="Additional notes..."
+                rows="3"
+              ></textarea>
+            </div>
+          </div>
+          <div class="form-actions">
+            <button type="button" class="btn btn-secondary" onclick="hideAddForm()">
+              Cancel
+            </button>
+            <button type="submit" class="btn btn-primary">
+              Add Record
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <div class="records-list" id="records-list">
+        {% for record in medical_records %}
+        <div class="record-card">
+          <div class="record-header">
+            <div class="record-type">
+              <span class="type-icon">📋</span>
+              <h3>{{ record.type }}</h3>
+            </div>
+            <div class="record-status" style="background-color: {{ record.status_color }}">
+              {{ record.status }}
+            </div>
+          </div>
+          <div class="record-details">
+            <div class="detail-item">
+              <span class="detail-label">Date:</span>
+              <span class="detail-value">{{ record.date }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Doctor:</span>
+              <span class="detail-value">{{ record.doctor }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Result:</span>
+              <span class="detail-value">{{ record.result }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Notes:</span>
+              <span class="detail-value">{{ record.notes }}</span>
+            </div>
+          </div>
+          <div class="record-actions">
+            <button class="btn btn-small">View Details</button>
+            <button class="btn btn-small btn-secondary">Edit</button>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Profile Tab -->
+    <div id="profile-tab" class="profile-section" style="display: none">
+      <div class="profile-header">
+        <div class="profile-avatar">
+          <span id="profile-avatar">{{ user.name[0] }}</span>
+        </div>
+        <div class="profile-info">
+          <h2 id="profile-name">{{ user.name }}</h2>
+          <p>Patient ID: #PAT-{{ user.id }}</p>
+        </div>
+      </div>
+
+      <div class="profile-content">
+        <div class="profile-section-card">
+          <h3>Personal Information</h3>
+          <form method="POST" action="{{ url_for('update_profile') }}">
+            <div class="info-grid">
+              <div class="info-item">
+                <label>Full Name</label>
+                <input type="text" name="full_name" value="{{ user.name }}" />
+              </div>
+              <div class="info-item">
+                <label>Age</label>
+                <input type="number" name="age" value="{{ user.age }}" />
+              </div>
+              <div class="info-item">
+                <label>Email</label>
+                <input type="email" name="email" value="{{ user.email }}" />
+              </div>
+              <div class="info-item">
+                <label>Phone</label>
+                <input type="tel" name="phone" value="{{ user.phone }}" />
+              </div>
+              <div class="info-item">
+                <label>Emergency Contact</label>
+                <input type="text" name="emergency_contact" value="{{ user.emergency_contact }}" />
+              </div>
+              <div class="info-item">
+                <label>Blood Type</label>
+                <select name="blood_type">
+                  <option value="A+" {% if user.blood_type == "A+" %}selected{% endif %}>A+</option>
+                  <option value="A-" {% if user.blood_type == "A-" %}selected{% endif %}>A-</option>
+                  <option value="B+" {% if user.blood_type == "B+" %}selected{% endif %}>B+</option>
+                  <option value="B-" {% if user.blood_type == "B-" %}selected{% endif %}>B-</option>
+                  <option value="AB+" {% if user.blood_type == "AB+" %}selected{% endif %}>AB+</option>
+                  <option value="AB-" {% if user.blood_type == "AB-" %}selected{% endif %}>AB-</option>
+                  <option value="O+" {% if user.blood_type == "O+" %}selected{% endif %}>O+</option>
+                  <option value="O-" {% if user.blood_type == "O-" %}selected{% endif %}>O-</option>
+                </select>
+              </div>
+            </div>
+            <div class="profile-actions">
+              <button type="submit" class="btn btn-primary">Save Changes</button>
+            </div>
+          </form>
+        </div>
+
+        <div class="profile-section-card">
+          <h3>Medical Information</h3>
+          <form method="POST" action="{{ url_for('update_medical_info') }}">
+            <div class="info-grid">
+              <div class="info-item full-width">
+                <label>Allergies</label>
+                <textarea name="allergies" rows="3">{{ user.allergies }}</textarea>
+              </div>
+              <div class="info-item full-width">
+                <label>Current Medications</label>
+                <textarea name="medications" rows="3">{{ user.medications }}</textarea>
+              </div>
+            </div>
+            <div class="profile-actions">
+              <button type="submit" class="btn btn-primary">Save Changes</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Family History Tab -->
+    <div id="family-tab" class="family-section" style="display: none">
+      <div class="section-header">
+        <h2>Family Medical History</h2>
+        <button class="btn btn-primary" onclick="addFamilyMember()">
+          + Add Family Member
+        </button>
+      </div>
+
+      <div class="family-history-list" id="family-history-list">
+        {% for member in family_history %}
+        <div class="family-member-card">
+          <div class="member-info">
+            <div class="member-relation">
+              <span class="relation-icon">👤</span>
+              <h3>{{ member.relation }}</h3>
+            </div>
+            <div class="member-details">
+              <div class="detail-item">
+                <span class="detail-label">Age:</span>
+                <span class="detail-value">{{ member.age }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Medical Conditions:</span>
+                <span class="detail-value">{{ member.condition }}</span>
+              </div>
+            </div>
+          </div>
+          <div class="member-actions">
+            <button class="btn btn-small" onclick="editFamilyMember({{ loop.index0 }})">Edit</button>
+            <button class="btn btn-small btn-danger" onclick="removeFamilyMember({{ loop.index0 }})">Remove</button>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+
+      <div class="family-history-summary">
+        <h3>Summary</h3>
+        <div class="summary-stats">
+          <div class="summary-item">
+            <span class="summary-label">Family Members:</span>
+            <span class="summary-value" id="family-count">{{ family_history|length }}</span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-label">With Breast Cancer History:</span>
+            <span class="summary-value" id="cancer-history-count">{{ family_history|selectattr('condition', 'equalto', 'Breast Cancer')|list|length }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // Global state
+  let activeTab = "overview";
+
+  // Tab navigation
+  function setActiveTab(tab) {
+    activeTab = tab;
+
+    // Hide all tabs
+    document.getElementById("overview-tab").style.display = "none";
+    document.getElementById("records-tab").style.display = "none";
+    document.getElementById("profile-tab").style.display = "none";
+    document.getElementById("family-tab").style.display = "none";
+
+    // Show selected tab
+    document.getElementById(tab + "-tab").style.display = "block";
+
+    // Update navigation
+    document.querySelectorAll(".nav-tab").forEach((btn) => {
+      btn.classList.remove("active");
+    });
+    event.target.classList.add("active");
+  }
+
+  // Form handling
+  function showAddForm() {
+    document.getElementById("add-record-form").style.display = "block";
+  }
+
+  function hideAddForm() {
+    document.getElementById("add-record-form").style.display = "none";
+    // Clear form
+    const form = document.getElementById("add-record-form").querySelector("form");
+    form.reset();
+  }
+
+  // Family history functions
+  function addFamilyMember() {
+    const relation = prompt("Enter family relation (e.g., Mother, Father, Sister):");
+    if (!relation) return;
+
+    const age = parseInt(prompt("Enter age:"));
+    if (isNaN(age)) return;
+
+    const condition = prompt('Enter medical condition (or "None"):');
+    if (!condition) return;
+
+    // Create form and submit
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '{{ url_for("add_family_member") }}';
+    
+    const relationInput = document.createElement('input');
+    relationInput.type = 'hidden';
+    relationInput.name = 'relation';
+    relationInput.value = relation;
+    
+    const ageInput = document.createElement('input');
+    ageInput.type = 'hidden';
+    ageInput.name = 'age';
+    ageInput.value = age;
+    
+    const conditionInput = document.createElement('input');
+    conditionInput.type = 'hidden';
+    conditionInput.name = 'condition';
+    conditionInput.value = condition;
+    
+    form.appendChild(relationInput);
+    form.appendChild(ageInput);
+    form.appendChild(conditionInput);
+    
+    document.body.appendChild(form);
+    form.submit();
+  }
+
+  function editFamilyMember(index) {
+    // This would open a modal or redirect to an edit page
+    alert("Edit functionality would be implemented here");
+  }
+
+  function removeFamilyMember(index) {
+    if (confirm("Are you sure you want to remove this family member?")) {
+      // Create form and submit
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.action = '{{ url_for("remove_family_member") }}';
+      
+      const indexInput = document.createElement('input');
+      indexInput.type = 'hidden';
+      indexInput.name = 'index';
+      indexInput.value = index;
+      
+      form.appendChild(indexInput);
+      document.body.appendChild(form);
+      form.submit();
+    }
+  }
+
+  // Initialize the dashboard
+  document.addEventListener("DOMContentLoaded", function () {
+    // Any initialization code can go here
+  });
+</script>
+{% endblock %}

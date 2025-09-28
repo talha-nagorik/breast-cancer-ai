@@ -1,39 +1,71 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}BreastCare AI{% endblock %}</title>
-    
-    <!-- Common CSS -->
-    <link rel="stylesheet" href="{{ url_for('static', path='/css/common.css') }}">
 
     <!-- Tailwind CSS -->
     <link rel="stylesheet" href="{{ url_for('static', path='/css/app.css') }}">
     {% block extra_css %}{% endblock %}
 </head>
-<body>
+
+<body class="font-sans text-gray-800 leading-relaxed overflow-x-hidden">
     <!-- Navigation -->
-    <nav class="navbar">
-        <div class="nav-content">
-            <div class="nav-logo">
-                <span class="logo-icon">🏥</span>
-                <span class="logo-text">BreastCare AI</span>
+    <nav
+        class="fixed top-0 left-0 right-0 bg-white/95 backdrop-blur-md border-b border-white/20 z-50 py-4 transition-all duration-300">
+        <div class="max-w-7xl mx-auto flex justify-between items-center px-8">
+            <div class="flex items-center gap-2">
+                <span class="text-3xl animate-pulse">🏥</span>
+                <span
+                    class="text-2xl font-bold bg-gradient-to-r from-indigo-500 to-purple-600 bg-clip-text text-transparent">BreastCare
+                    AI</span>
             </div>
-            <div class="nav-links">
-                <a href="{{ url_for('home') }}" class="nav-link">Home</a>
-                <a href="{{ url_for('home') }}#about" class="nav-link">About</a>
-                <a href="{{ url_for('home') }}#symptoms" class="nav-link">Symptoms</a>
-                <a href="{{ url_for('home') }}#detection" class="nav-link">Detection</a>
-                <a href="{{ url_for('home') }}#contact" class="nav-link">Contact</a>
+            <div class="hidden md:flex gap-8">
+                <a href="{{ url_for('home') }}"
+                    class="text-gray-700 font-medium transition-all duration-300 hover:text-indigo-500 hover:-translate-y-0.5 relative group">
+                    Home
+                    <span
+                        class="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-indigo-500 to-purple-600 transition-all duration-300 group-hover:w-full"></span>
+                </a>
+                <a href="{{ url_for('home') }}#about"
+                    class="text-gray-700 font-medium transition-all duration-300 hover:text-indigo-500 hover:-translate-y-0.5 relative group">
+                    About
+                    <span
+                        class="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-indigo-500 to-purple-600 transition-all duration-300 group-hover:w-full"></span>
+                </a>
+                <a href="{{ url_for('home') }}#symptoms"
+                    class="text-gray-700 font-medium transition-all duration-300 hover:text-indigo-500 hover:-translate-y-0.5 relative group">
+                    Symptoms
+                    <span
+                        class="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-indigo-500 to-purple-600 transition-all duration-300 group-hover:w-full"></span>
+                </a>
+                <a href="{{ url_for('home') }}#detection"
+                    class="text-gray-700 font-medium transition-all duration-300 hover:text-indigo-500 hover:-translate-y-0.5 relative group">
+                    Detection
+                    <span
+                        class="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-indigo-500 to-purple-600 transition-all duration-300 group-hover:w-full"></span>
+                </a>
+                <a href="{{ url_for('home') }}#contact"
+                    class="text-gray-700 font-medium transition-all duration-300 hover:text-indigo-500 hover:-translate-y-0.5 relative group">
+                    Contact
+                    <span
+                        class="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-indigo-500 to-purple-600 transition-all duration-300 group-hover:w-full"></span>
+                </a>
             </div>
-            <div class="auth-buttons">
+            <div class="flex gap-4">
                 {% if user %}
-                    <a href="{{ url_for('dashboard') }}" class="btn btn-primary">Dashboard</a>
-                    <a href="{{ url_for('logout') }}" class="btn btn-logout">Logout</a>
+                <a href="{{ url_for('dashboard') }}"
+                    class="px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5">Dashboard</a>
+                <a href="{{ url_for('logout') }}"
+                    class="px-4 py-2 bg-red-500 text-white text-sm font-medium rounded-md hover:bg-red-600 transition-all duration-300 hover:-translate-y-0.5">Logout</a>
                 {% else %}
-                    <a href="{{ url_for('login_form') }}" class="btn btn-login">Login</a>
-                    <a href="{{ url_for('signup_form') }}" class="btn btn-signup">Sign Up</a>
+                <a href="{{ url_for('login_form') }}"
+                    class="px-6 py-3 border-2 border-indigo-500 text-indigo-500 font-semibold rounded-full hover:bg-indigo-500 hover:text-white transition-all duration-300 hover:-translate-y-0.5">Login</a>
+                <a href="{{ url_for('signup_form') }}"
+                    class="px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5">Sign
+                    Up</a>
                 {% endif %}
             </div>
         </div>
@@ -45,30 +77,37 @@
     </main>
 
     <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-section">
-                    <h4>BreastCare AI</h4>
-                    <p>Advancing breast cancer detection through artificial intelligence</p>
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="max-w-7xl mx-auto px-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+                <div>
+                    <h4 class="text-yellow-400 text-xl font-semibold mb-4">BreastCare AI</h4>
+                    <p class="text-gray-300">Advancing breast cancer detection through artificial intelligence</p>
                 </div>
-                <div class="footer-section">
-                    <h4>Quick Links</h4>
-                    <ul>
-                        <li><a href="{{ url_for('home') }}">Home</a></li>
-                        <li><a href="{{ url_for('home') }}#about">About</a></li>
-                        <li><a href="{{ url_for('home') }}#symptoms">Symptoms</a></li>
-                        <li><a href="{{ url_for('home') }}#detection">Detection</a></li>
+                <div>
+                    <h4 class="text-yellow-400 text-xl font-semibold mb-4">Quick Links</h4>
+                    <ul class="space-y-2">
+                        <li><a href="{{ url_for('home') }}"
+                                class="text-gray-300 hover:text-yellow-400 transition-colors duration-300">Home</a></li>
+                        <li><a href="{{ url_for('home') }}#about"
+                                class="text-gray-300 hover:text-yellow-400 transition-colors duration-300">About</a>
+                        </li>
+                        <li><a href="{{ url_for('home') }}#symptoms"
+                                class="text-gray-300 hover:text-yellow-400 transition-colors duration-300">Symptoms</a>
+                        </li>
+                        <li><a href="{{ url_for('home') }}#detection"
+                                class="text-gray-300 hover:text-yellow-400 transition-colors duration-300">Detection</a>
+                        </li>
                     </ul>
                 </div>
-                <div class="footer-section">
-                    <h4>Contact</h4>
-                    <p>Email: info@breastcare-ai.com</p>
-                    <p>Phone: +1 (555) 123-4567</p>
+                <div>
+                    <h4 class="text-yellow-400 text-xl font-semibold mb-4">Contact</h4>
+                    <p class="text-gray-300">Email: info@breastcare-ai.com</p>
+                    <p class="text-gray-300">Phone: +1 (555) 123-4567</p>
                 </div>
             </div>
-            <div class="footer-bottom">
-                <p>&copy; 2024 BreastCare AI. All rights reserved.</p>
+            <div class="text-center pt-8 border-t border-gray-700">
+                <p class="text-gray-400">&copy; 2024 BreastCare AI. All rights reserved.</p>
             </div>
         </div>
     </footer>
@@ -77,4 +116,5 @@
     <script src="{{ url_for('static', path='/js/common.js') }}"></script>
     {% block extra_js %}{% endblock %}
 </body>
+
 </html>
