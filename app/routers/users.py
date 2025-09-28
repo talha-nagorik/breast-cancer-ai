@@ -1,3 +1,20 @@
+"""
+User Management Router
+
+This module handles all user-related operations including registration,
+authentication, profile management, and session handling.
+
+Features:
+- User registration and validation
+- Secure login with password hashing
+- Session management with expiration
+- User profile management
+- Dashboard access control
+
+Author: AI Medical Records Team
+Version: 1.0.0
+"""
+
 from fastapi import APIRouter, Request, Form, Depends
 from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
@@ -9,26 +26,45 @@ from ..auth import get_password_hash, verify_password
 from ..database.database import get_session
 from ..dependencies import get_current_user
 
-# Pydantic models for JSON requests
+# Pydantic models for API requests
 
 
 class LoginRequest(BaseModel):
+    """
+    Login request model for user authentication.
+
+    Attributes:
+        email: User's email address
+        password: User's password (will be hashed)
+    """
     email: str
     password: str
 
 
 class SignupRequest(BaseModel):
+    """
+    User registration request model.
+
+    Attributes:
+        full_name: User's full name
+        email: User's email address (must be unique)
+        password: User's password
+        confirm_password: Password confirmation (must match password)
+    """
     full_name: str
     email: str
     password: str
     confirm_password: str
 
 
+# Initialize router with user management configuration
 router = APIRouter(
     prefix="/users",
     tags=["User Management"],
     responses={404: {"description": "Not found"}}
 )
+
+# Setup Jinja2 templates for HTML rendering
 templates = Jinja2Templates(directory="templates")
 
 # Signup page

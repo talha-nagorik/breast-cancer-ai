@@ -1,3 +1,20 @@
+"""
+AI Medical Records Application - Main FastAPI Application
+
+This module contains the main FastAPI application setup, configuration,
+and core routes for the AI Medical Records system.
+
+Features:
+- User management and authentication
+- Medical records tracking
+- Family history management
+- AI-powered breast cancer detection
+- Wisconsin dataset analysis
+
+Author: AI Medical Records Team
+Version: 1.0.0
+"""
+
 from fastapi import FastAPI, Request, Depends
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
@@ -10,6 +27,7 @@ from .internal import admin
 from .dependencies import get_current_user
 from .models.models import User
 
+# Initialize FastAPI application with comprehensive configuration
 app = FastAPI(
     title="AI Medical Records Application",
     description="""
@@ -43,25 +61,33 @@ app = FastAPI(
     },
 )
 
-# Mount static files
+# Configure static file serving
 app.mount("/static", StaticFiles(directory="static"), name="static")
+
+# Add GZip compression middleware for better performance
 app.add_middleware(GZipMiddleware)
 
-# Setup templates
+# Setup Jinja2 templates for HTML rendering
 templates = Jinja2Templates(directory="templates")
 
-# Include routers
-app.include_router(users.router)
-app.include_router(medical.router)
-app.include_router(ml.router)  # Add ML router
-app.include_router(wisconsin.router)  # Add Wisconsin router
-app.include_router(admin.router)
-
-# Initialize database and apply migrations on startup
+# Include all API routers
+app.include_router(users.router)        # User management and authentication
+app.include_router(medical.router)      # Medical records and family history
+app.include_router(ml.router)          # Machine learning predictions
+app.include_router(wisconsin.router)   # Wisconsin dataset analysis
+app.include_router(admin.router)       # Admin panel and internal operations
 
 
 @app.on_event("startup")
-def on_startup():
+async def on_startup() -> None:
+    """
+    Application startup event handler.
+
+    Initializes the database and applies any pending migrations
+    when the application starts up.
+
+    This ensures the database is ready before handling any requests.
+    """
     initialize_database()
 
 # Home page
@@ -72,14 +98,28 @@ def on_startup():
          tags=["Application"],
          summary="Home Page",
          description="Welcome page with application overview and features")
-async def home(request: Request, user: User | None = Depends(get_current_user)):
+async def home(request: Request, user: User | None = Depends(get_current_user)) -> HTMLResponse:
     """
-    Home page.
+    Home page endpoint.
 
     Displays the welcome page with application overview, features,
     and information about AI breast cancer detection capabilities.
+
+    Args:
+        request: FastAPI request object
+        user: Current authenticated user (optional)
+
+    Returns:
+        HTMLResponse: Rendered home page template
+
+    Features displayed:
+        - Application statistics
+        - About cards with key information
+        - Breast cancer symptoms
+        - Detection process steps
+        - Risk factors information
     """
-    # Sample data for the home page
+    # Prepare context data for the home page template
     context = {
         "request": request,
         "user": user,
