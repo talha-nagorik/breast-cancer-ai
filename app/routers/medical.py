@@ -71,32 +71,66 @@ async def dashboard(request: Request, user: User | None = Depends(get_current_us
 @router.post("/add_record")
 async def add_record(
     request: Request,
-    record_type: str = Form(...),
-    record_date: str = Form(...),
-    record_doctor: str = Form(...),
-    record_notes: str = Form(...),
     user: User | None = Depends(get_current_user),
     session: Session = Depends(get_session)
 ):
     if not user:
         return RedirectResponse(url="/signup")
 
-    # Create new record
-    new_record = MedicalRecord(
-        user_id=user.id,
-        date=record_date,
-        type=record_type,
-        result="Pending",
-        doctor=record_doctor,
-        notes=record_notes,
-        status="pending",
-        status_color="#f59e0b"
-    )
+    try:
+        # Try to get JSON data first (for AJAX requests)
+        try:
+            json_data = await request.json()
+            record_type = json_data.get("type")
+            record_date = json_data.get("date")
+            record_doctor = json_data.get("doctor")
+            record_notes = json_data.get("notes", "")
+            record_status = json_data.get("status", "pending")
+        except:
+            # Fallback to form data (for regular form submissions)
+            form_data = await request.form()
+            record_type = form_data.get("record_type") or form_data.get("type")
+            record_date = form_data.get("record_date") or form_data.get("date")
+            record_doctor = form_data.get("record_doctor") or form_data.get("doctor")
+            record_notes = form_data.get("record_notes") or form_data.get("notes", "")
+            record_status = form_data.get("status", "pending")
 
-    session.add(new_record)
-    session.commit()
+        # Validate required fields
+        if not record_type or not record_date or not record_doctor:
+            if request.headers.get("content-type", "").startswith("application/json"):
+                from fastapi import HTTPException
+                raise HTTPException(status_code=400, detail="Missing required fields")
+            else:
+                return RedirectResponse(url="/dashboard?error=missing_fields", status_code=303)
 
-    return RedirectResponse(url="/dashboard", status_code=303)
+        # Create new record
+        new_record = MedicalRecord(
+            user_id=user.id,
+            date=record_date,
+            type=record_type,
+            result="Pending",
+            doctor=record_doctor,
+            notes=record_notes,
+            status=record_status,
+            status_color="#f59e0b" if record_status == "pending" else "#10b981"
+        )
+
+        session.add(new_record)
+        session.commit()
+
+        # Return appropriate response based on request type
+        if request.headers.get("content-type", "").startswith("application/json"):
+            from fastapi.responses import JSONResponse
+            return JSONResponse(content={"success": True, "message": "Record added successfully"})
+        else:
+            return RedirectResponse(url="/dashboard", status_code=303)
+
+    except Exception as e:
+        if request.headers.get("content-type", "").startswith("application/json"):
+            from fastapi import HTTPException
+            raise HTTPException(status_code=500, detail=f"Failed to add record: {str(e)}")
+        else:
+            return RedirectResponse(url="/dashboard?error=add_failed", status_code=303)
 
 # Update profile
 @router.post("/update_profile")
