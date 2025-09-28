@@ -2,7 +2,7 @@ from fastapi import APIRouter, Request, Form, Depends, HTTPException
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlmodel import Session, select
-from datetime import datetime
+from datetime import datetime, timezone
 
 from ..models.models import User, MedicalRecord, FamilyHistory
 from ..database.database import get_session
@@ -121,7 +121,7 @@ async def update_profile(
     user.phone = phone
     user.emergency_contact = emergency_contact
     user.blood_type = blood_type
-    user.updated_at = datetime.now(datetime.timezone.utc)
+    user.updated_at = datetime.now(timezone.utc)
 
     session.add(user)
     session.commit()
@@ -143,7 +143,7 @@ async def update_medical_info(
     # Update medical info
     user.allergies = allergies
     user.medications = medications
-    user.updated_at = datetime.now(datetime.timezone.utc)
+    user.updated_at = datetime.now(timezone.utc)
 
     session.add(user)
     session.commit()
