@@ -2,7 +2,6 @@ from fastapi import APIRouter, Request, Form, Depends, HTTPException
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlmodel import Session, select
-from typing import Optional
 from datetime import datetime
 
 from ..models.models import User, MedicalRecord, FamilyHistory
@@ -14,7 +13,7 @@ templates = Jinja2Templates(directory="templates")
 
 # Dashboard page
 @router.get("/dashboard", response_class=HTMLResponse)
-async def dashboard(request: Request, user: Optional[User] = Depends(get_current_user), session: Session = Depends(get_session)):
+async def dashboard(request: Request, user: User | None = Depends(get_current_user), session: Session = Depends(get_session)):
     if not user:
         return RedirectResponse(url="/signup")
 
@@ -76,7 +75,7 @@ async def add_record(
     record_date: str = Form(...),
     record_doctor: str = Form(...),
     record_notes: str = Form(...),
-    user: Optional[User] = Depends(get_current_user),
+    user: User | None = Depends(get_current_user),
     session: Session = Depends(get_session)
 ):
     if not user:
@@ -109,7 +108,7 @@ async def update_profile(
     phone: str = Form(...),
     emergency_contact: str = Form(...),
     blood_type: str = Form(...),
-    user: Optional[User] = Depends(get_current_user),
+    user: User | None = Depends(get_current_user),
     session: Session = Depends(get_session)
 ):
     if not user:
@@ -122,7 +121,7 @@ async def update_profile(
     user.phone = phone
     user.emergency_contact = emergency_contact
     user.blood_type = blood_type
-    user.updated_at = datetime.utcnow()
+    user.updated_at = datetime.now(datetime.timezone.utc)
 
     session.add(user)
     session.commit()
@@ -135,7 +134,7 @@ async def update_medical_info(
     request: Request,
     allergies: str = Form(...),
     medications: str = Form(...),
-    user: Optional[User] = Depends(get_current_user),
+    user: User | None = Depends(get_current_user),
     session: Session = Depends(get_session)
 ):
     if not user:
@@ -144,7 +143,7 @@ async def update_medical_info(
     # Update medical info
     user.allergies = allergies
     user.medications = medications
-    user.updated_at = datetime.utcnow()
+    user.updated_at = datetime.now(datetime.timezone.utc)
 
     session.add(user)
     session.commit()
@@ -158,7 +157,7 @@ async def add_family_member(
     relation: str = Form(...),
     age: int = Form(...),
     condition: str = Form(...),
-    user: Optional[User] = Depends(get_current_user),
+    user: User | None = Depends(get_current_user),
     session: Session = Depends(get_session)
 ):
     if not user:
@@ -182,7 +181,7 @@ async def add_family_member(
 async def remove_family_member(
     request: Request,
     index: int = Form(...),
-    user: Optional[User] = Depends(get_current_user),
+    user: User | None = Depends(get_current_user),
     session: Session = Depends(get_session)
 ):
     if not user:
@@ -201,7 +200,7 @@ async def remove_family_member(
 
 # API endpoints for AJAX requests
 @router.get("/api/stats")
-async def get_stats(request: Request, user: Optional[User] = Depends(get_current_user), session: Session = Depends(get_session)):
+async def get_stats(request: Request, user: User | None = Depends(get_current_user), session: Session = Depends(get_session)):
     if not user:
         raise HTTPException(status_code=401, detail="Not authenticated")
 

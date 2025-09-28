@@ -3,10 +3,8 @@ from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.gzip import GZipMiddleware
-from typing import Optional
 
 from .database.database import create_db_and_tables
-from .dependencies import get_current_user
 from .routers import users, medical
 from .internal import admin
 
@@ -31,7 +29,7 @@ def on_startup():
 
 # Home page
 @app.get("/", response_class=HTMLResponse)
-async def home(request: Request, user: Optional[dict] = None):
+async def home(request: Request, user: dict | None = None):
     # Sample data for the home page
     context = {
         "request": request,

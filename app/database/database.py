@@ -1,5 +1,4 @@
 from sqlmodel import SQLModel, create_engine, Session
-import os
 
 # Database configuration
 DATABASE_URL = "sqlite:///./app.db"

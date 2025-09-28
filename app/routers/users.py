@@ -1,11 +1,9 @@
-from fastapi import APIRouter, Request, Form, Depends, HTTPException
+from fastapi import APIRouter, Request, Form, Depends
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlmodel import Session, select
-from typing import Optional
-from datetime import datetime
 
-from ..models.models import User, MedicalRecord, FamilyHistory, Session as UserSession
+from ..models.models import User, Session as UserSession
 from ..auth import get_password_hash, verify_password
 from ..database.database import get_session
 from ..dependencies import get_current_user
@@ -14,8 +12,10 @@ router = APIRouter()
 templates = Jinja2Templates(directory="templates")
 
 # Signup page
+
+
 @router.get("/signup", response_class=HTMLResponse)
-async def signup_form(request: Request, user: Optional[User] = Depends(get_current_user)):
+async def signup_form(request: Request, user: User | None = Depends(get_current_user)):
     if user:
         return RedirectResponse(url="/dashboard")
 
@@ -25,8 +25,10 @@ async def signup_form(request: Request, user: Optional[User] = Depends(get_curre
     })
 
 # Login page
+
+
 @router.get("/login", response_class=HTMLResponse)
-async def login_form(request: Request, user: Optional[User] = Depends(get_current_user)):
+async def login_form(request: Request, user: User | None = Depends(get_current_user)):
     if user:
         return RedirectResponse(url="/dashboard")
 
@@ -36,6 +38,8 @@ async def login_form(request: Request, user: Optional[User] = Depends(get_curren
     })
 
 # Handle signup form submission
+
+
 @router.post("/signup")
 async def signup_submit(
     request: Request,
@@ -61,7 +65,8 @@ async def signup_submit(
         })
 
     # Check if user already exists
-    existing_user = session.exec(select(User).where(User.email == email)).first()
+    existing_user = session.exec(
+        select(User).where(User.email == email)).first()
     if existing_user:
         return templates.TemplateResponse("signup.html", {
             "request": request,
@@ -98,6 +103,8 @@ async def signup_submit(
     return response
 
 # Handle login form submission
+
+
 @router.post("/login")
 async def login_submit(
     request: Request,
@@ -106,8 +113,9 @@ async def login_submit(
     session: Session = Depends(get_session)
 ):
     # Get user from database
-    user = session.exec(select(User).where(User.email == email, User.is_active == True)).first()
-    
+    user = session.exec(select(User).where(
+        User.email == email, User.is_active == True)).first()
+
     if user and verify_password(password, user.password_hash):
         # Create new session
         user_session = UserSession(user_id=user.id)
@@ -126,6 +134,8 @@ async def login_submit(
         })
 
 # Logout
+
+
 @router.get("/logout")
 async def logout():
     response = RedirectResponse(url="/")
