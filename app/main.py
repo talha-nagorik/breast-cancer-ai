@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Depends
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
@@ -7,6 +7,8 @@ from fastapi.middleware.gzip import GZipMiddleware
 from .database.init import initialize_database
 from .routers import users, medical, ml
 from .internal import admin
+from .dependencies import get_current_user
+from .models.models import User
 
 app = FastAPI(title="AI Medical Records Application")
 
@@ -34,7 +36,7 @@ def on_startup():
 
 
 @app.get("/", response_class=HTMLResponse)
-async def home(request: Request, user: dict | None = None):
+async def home(request: Request, user: User | None = Depends(get_current_user)):
     # Sample data for the home page
     context = {
         "request": request,

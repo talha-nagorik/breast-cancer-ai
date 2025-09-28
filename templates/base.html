@@ -18,12 +18,12 @@
         x-data="{ mobileMenuOpen: false }">
         <div class="max-w-7xl mx-auto flex justify-between items-center px-4 sm:px-6 lg:px-8">
             <!-- Logo -->
-            <div class="flex items-center gap-2">
+            <a href="{{ url_for('home') }}" class="flex items-center gap-2 hover:opacity-80 transition-opacity duration-300">
                 <span class="text-2xl sm:text-3xl animate-pulse">🏥</span>
                 <span
                     class="text-xl sm:text-2xl font-bold bg-gradient-to-r from-indigo-500 to-purple-600 bg-clip-text text-transparent">BreastCare
                     AI</span>
-            </div>
+            </a>
 
             <!-- Desktop Navigation -->
             <div class="hidden lg:flex gap-8">
@@ -60,12 +60,15 @@
             </div>
 
             <!-- Desktop Auth Buttons -->
-            <div class="hidden md:flex gap-3">
+            <div class="hidden md:flex items-center gap-3">
                 {% if user %}
-                <a href="{{ url_for('dashboard') }}"
-                    class="px-4 lg:px-6 py-2 lg:py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5 text-sm lg:text-base">Dashboard</a>
-                <a href="{{ url_for('logout') }}"
-                    class="px-4 lg:px-6 py-2 lg:py-3 bg-red-500 text-white font-semibold rounded-full shadow-lg hover:shadow-xl hover:bg-red-600 transition-all duration-300 hover:-translate-y-0.5 text-sm lg:text-base">Logout</a>
+                <div class="flex items-center gap-3">
+                    <span class="text-gray-700 font-medium">Welcome, {{ user.name }}!</span>
+                    <a href="{{ url_for('dashboard') }}"
+                        class="px-4 lg:px-6 py-2 lg:py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5 text-sm lg:text-base">Dashboard</a>
+                    <a href="{{ url_for('logout') }}"
+                        class="px-4 lg:px-6 py-2 lg:py-3 bg-red-500 text-white font-semibold rounded-full shadow-lg hover:shadow-xl hover:bg-red-600 transition-all duration-300 hover:-translate-y-0.5 text-sm lg:text-base">Logout</a>
+                </div>
                 {% else %}
                 <a href="{{ url_for('login_form') }}"
                     class="px-4 lg:px-6 py-2 lg:py-3 border-2 border-indigo-500 text-indigo-500 font-semibold rounded-full hover:bg-indigo-500 hover:text-white transition-all duration-300 hover:-translate-y-0.5 text-sm lg:text-base">Login</a>
@@ -125,6 +128,9 @@
                 <div class="pt-4 pb-3 border-t border-gray-200">
                     <div class="flex flex-col space-y-2 px-3">
                         {% if user %}
+                        <div class="px-3 py-2 text-center">
+                            <span class="text-gray-700 font-medium">Welcome, {{ user.name }}!</span>
+                        </div>
                         <a href="{{ url_for('dashboard') }}"
                             class="block w-full px-4 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold rounded-full shadow-lg hover:shadow-xl transition-all duration-300 text-center"
                             @click="mobileMenuOpen = false">Dashboard</a>
