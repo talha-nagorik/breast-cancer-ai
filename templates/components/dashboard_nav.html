@@ -2,16 +2,28 @@
 <nav class="bg-white border-b border-gray-200">
   <div class="max-w-7xl mx-auto px-8">
     <div class="flex space-x-8">
-      <button class="nav-tab py-4 px-1 border-b-2 border-indigo-500 text-indigo-600 font-medium" onclick="setActiveTab('overview')">
+      <button 
+        class="nav-tab py-4 px-1 border-b-2 font-medium transition-all duration-200"
+        :class="isActiveTab('overview') ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700'"
+        @click="setActiveTab('overview')">
         📊 Overview
       </button>
-      <button class="nav-tab py-4 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium" onclick="setActiveTab('records')">
+      <button 
+        class="nav-tab py-4 px-1 border-b-2 font-medium transition-all duration-200"
+        :class="isActiveTab('records') ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700'"
+        @click="setActiveTab('records')">
         📋 Medical Records
       </button>
-      <button class="nav-tab py-4 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium" onclick="setActiveTab('profile')">
+      <button 
+        class="nav-tab py-4 px-1 border-b-2 font-medium transition-all duration-200"
+        :class="isActiveTab('profile') ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700'"
+        @click="setActiveTab('profile')">
         👤 Profile
       </button>
-      <button class="nav-tab py-4 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium" onclick="setActiveTab('family')">
+      <button 
+        class="nav-tab py-4 px-1 border-b-2 font-medium transition-all duration-200"
+        :class="isActiveTab('family') ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700'"
+        @click="setActiveTab('family')">
         👨‍👩‍👧‍👦 Family History
       </button>
     </div>

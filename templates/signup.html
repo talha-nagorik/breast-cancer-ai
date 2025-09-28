@@ -5,7 +5,7 @@
 {% block extra_css %}{% endblock %}
 
 {% block content %}
-<div class="min-h-screen bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center px-8 pt-20 relative overflow-x-hidden">
+<div class="min-h-screen bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center px-8 pt-20 relative overflow-x-hidden" x-data="signupForm()">
   <!-- Background Pattern -->
   <div class="absolute inset-0 opacity-30 pointer-events-none" style="background-image: url('data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 100\"><defs><pattern id=\"grain\" width=\"100\" height=\"100\" patternUnits=\"userSpaceOnUse\"><circle cx=\"50\" cy=\"50\" r=\"1\" fill=\"white\" opacity=\"0.1\"/></pattern></defs><rect width=\"100\" height=\"100\" fill=\"url(%23grain)\"/></svg>');"></div>
   
@@ -27,51 +27,62 @@
       </div>
       {% endif %}
 
-      <form id="signupForm" class="space-y-6" method="POST" action="{{ url_for('signup_submit') }}">
+      <form @submit.prevent="handleSubmit" class="space-y-6">
         <div>
           <input
             type="text"
-            name="full_name"
+            x-model="formData.full_name"
+            @blur="validateField('full_name', formData.full_name, { required: true })"
             placeholder="Full name"
-            class="w-full px-4 py-4 border-2 border-gray-200 rounded-xl text-base transition-all duration-300 bg-white/80 backdrop-blur-sm focus:outline-none focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-100"
+            class="w-full px-4 py-4 border-2 rounded-xl text-base transition-all duration-300 bg-white/80 backdrop-blur-sm focus:outline-none focus:bg-white focus:ring-4 focus:ring-indigo-100"
+            :class="errors.full_name ? 'border-red-500 focus:border-red-500' : 'border-gray-200 focus:border-indigo-500'"
             required
             value="{{ form_data.full_name if form_data else '' }}"
           />
-          <div class="error-message hidden text-red-500 text-sm mt-2" id="name-error"></div>
+          <div x-show="errors.full_name" x-text="errors.full_name" class="text-red-500 text-sm mt-2"></div>
         </div>
         <div>
           <input
             type="email"
-            name="email"
+            x-model="formData.email"
+            @blur="validateField('email', formData.email, { required: true, email: true })"
             placeholder="Email address"
-            class="w-full px-4 py-4 border-2 border-gray-200 rounded-xl text-base transition-all duration-300 bg-white/80 backdrop-blur-sm focus:outline-none focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-100"
+            class="w-full px-4 py-4 border-2 rounded-xl text-base transition-all duration-300 bg-white/80 backdrop-blur-sm focus:outline-none focus:bg-white focus:ring-4 focus:ring-indigo-100"
+            :class="errors.email ? 'border-red-500 focus:border-red-500' : 'border-gray-200 focus:border-indigo-500'"
             required
             value="{{ form_data.email if form_data else '' }}"
           />
-          <div class="error-message hidden text-red-500 text-sm mt-2" id="email-error"></div>
+          <div x-show="errors.email" x-text="errors.email" class="text-red-500 text-sm mt-2"></div>
         </div>
         <div>
           <input
             type="password"
-            name="password"
+            x-model="formData.password"
+            @blur="validateField('password', formData.password, { required: true, minLength: 6 })"
             placeholder="Password"
-            class="w-full px-4 py-4 border-2 border-gray-200 rounded-xl text-base transition-all duration-300 bg-white/80 backdrop-blur-sm focus:outline-none focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-100"
+            class="w-full px-4 py-4 border-2 rounded-xl text-base transition-all duration-300 bg-white/80 backdrop-blur-sm focus:outline-none focus:bg-white focus:ring-4 focus:ring-indigo-100"
+            :class="errors.password ? 'border-red-500 focus:border-red-500' : 'border-gray-200 focus:border-indigo-500'"
             required
           />
-          <div class="error-message hidden text-red-500 text-sm mt-2" id="password-error"></div>
+          <div x-show="errors.password" x-text="errors.password" class="text-red-500 text-sm mt-2"></div>
         </div>
         <div>
           <input
             type="password"
-            name="confirm_password"
+            x-model="formData.confirm_password"
+            @blur="validateField('confirm_password', formData.confirm_password, { required: true, match: formData.password })"
             placeholder="Confirm password"
-            class="w-full px-4 py-4 border-2 border-gray-200 rounded-xl text-base transition-all duration-300 bg-white/80 backdrop-blur-sm focus:outline-none focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-100"
+            class="w-full px-4 py-4 border-2 rounded-xl text-base transition-all duration-300 bg-white/80 backdrop-blur-sm focus:outline-none focus:bg-white focus:ring-4 focus:ring-indigo-100"
+            :class="errors.confirm_password ? 'border-red-500 focus:border-red-500' : 'border-gray-200 focus:border-indigo-500'"
             required
           />
-          <div class="error-message hidden text-red-500 text-sm mt-2" id="confirm-password-error"></div>
+          <div x-show="errors.confirm_password" x-text="errors.confirm_password" class="text-red-500 text-sm mt-2"></div>
         </div>
-        <button type="submit" class="w-full px-8 py-4 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5">
-          Create Account
+        <button 
+          type="submit" 
+          :disabled="loading"
+          class="w-full px-8 py-4 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+          x-text="loading ? 'Creating Account...' : 'Create Account'">
         </button>
       </form>
 
@@ -89,79 +100,4 @@
 </div>
 {% endblock %}
 
-{% block extra_js %}
-<script>
-  // Form validation
-  function validateForm() {
-    const form = document.getElementById("signupForm");
-    const inputs = form.querySelectorAll('input');
-    let isValid = true;
-
-    inputs.forEach(input => {
-      if (!input.name) return;
-      const errorElement = document.getElementById(input.name.replace('_', '-') + '-error');
-      
-      if (input.hasAttribute('required') && !input.value.trim()) {
-        showError(input, errorElement, 'This field is required');
-        isValid = false;
-      } else if (input.type === 'email' && input.value && !isValidEmail(input.value)) {
-        showError(input, errorElement, 'Please enter a valid email address');
-        isValid = false;
-      } else if (input.name === 'password' && input.value && input.value.length < 6) {
-        showError(input, errorElement, 'Password must be at least 6 characters');
-        isValid = false;
-      } else if (input.name === 'confirm_password') {
-        const password = form.querySelector('input[name="password"]').value;
-        if (input.value !== password) {
-          showError(input, errorElement, 'Passwords do not match');
-          isValid = false;
-        } else {
-          clearError(input, errorElement);
-        }
-      } else {
-        clearError(input, errorElement);
-      }
-    });
-
-    return isValid;
-  }
-
-  function showError(input, errorElement, message) {
-    input.classList.add('border-red-500', 'focus:border-red-500', 'focus:ring-red-100');
-    input.classList.remove('border-gray-200', 'focus:border-indigo-500', 'focus:ring-indigo-100');
-    if (errorElement) {
-      errorElement.textContent = message;
-      errorElement.classList.remove('hidden');
-    }
-  }
-
-  function clearError(input, errorElement) {
-    input.classList.remove('border-red-500', 'focus:border-red-500', 'focus:ring-red-100');
-    input.classList.add('border-gray-200', 'focus:border-indigo-500', 'focus:ring-indigo-100');
-    if (errorElement) {
-      errorElement.classList.add('hidden');
-    }
-  }
-
-  function isValidEmail(email) {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  }
-
-  // Form submission
-  document.getElementById("signupForm").addEventListener("submit", function (e) {
-    if (!validateForm()) {
-      e.preventDefault();
-    }
-  });
-
-  // Clear errors on input
-  document.querySelectorAll('input').forEach(input => {
-    input.addEventListener('input', function() {
-      if (!this.name) return;
-      const errorElement = document.getElementById(this.name.replace('_', '-') + '-error');
-      clearError(this, errorElement);
-    });
-  });
-</script>
-{% endblock %}
+{% block extra_js %}{% endblock %}

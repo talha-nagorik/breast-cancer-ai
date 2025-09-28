@@ -5,7 +5,7 @@
 {% block extra_css %}{% endblock %}
 
 {% block content %}
-<div class="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 pt-20">
+<div class="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 pt-20" x-data="dashboard()">
   <!-- Dashboard Title -->
   <div class="bg-white shadow-sm border-b border-gray-200">
     <div class="max-w-7xl mx-auto px-8 py-6">
@@ -38,24 +38,18 @@
 
 {% block extra_js %}
 <script>
-  function setActiveTab(tabName) {
-    // Hide all content sections
-    const sections = document.querySelectorAll('.content-section');
-    sections.forEach(section => section.classList.add('hidden'));
-    
-    // Remove active class from all tabs
-    const tabs = document.querySelectorAll('.nav-tab');
-    tabs.forEach(tab => {
-      tab.classList.remove('border-indigo-500', 'text-indigo-600');
-      tab.classList.add('border-transparent', 'text-gray-500');
-    });
-    
-    // Show selected section
-    document.getElementById(tabName + '-tab').classList.remove('hidden');
-    
-    // Add active class to clicked tab
-    event.target.classList.remove('border-transparent', 'text-gray-500');
-    event.target.classList.add('border-indigo-500', 'text-indigo-600');
+  function dashboard() {
+    return {
+      activeTab: 'overview',
+      
+      setActiveTab(tabName) {
+        this.activeTab = tabName;
+      },
+      
+      isActiveTab(tabName) {
+        return this.activeTab === tabName;
+      }
+    }
   }
 </script>
 {% endblock %}
