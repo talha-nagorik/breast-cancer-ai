@@ -1,11 +1,9 @@
-from typing import Union, Optional
-from fastapi import FastAPI, Request, Form, HTTPException, Depends
+import uuid
+
+from fastapi import FastAPI, Request, Form, HTTPException
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel
-import uuid
-from datetime import datetime, date
 
 app = FastAPI()
 
@@ -69,6 +67,8 @@ medical_records_db["123456"] = sample_medical_records
 family_history_db["123456"] = sample_family_history
 
 # Dependency to get current user
+
+
 def get_current_user(request: Request):
     # In a real app, you'd check session/cookie
     # For demo purposes, we'll use a simple session check
@@ -80,10 +80,12 @@ def get_current_user(request: Request):
     return None
 
 # Home page
+
+
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request):
     user = get_current_user(request)
-    
+
     # Sample data for the home page
     context = {
         "request": request,
@@ -110,18 +112,28 @@ async def home(request: Request):
             }
         ],
         "symptoms": [
-            {"icon": "🔴", "title": "Lump or Mass", "description": "A new lump or mass in the breast or underarm area"},
-            {"icon": "🔄", "title": "Shape Changes", "description": "Changes in breast size, shape, or appearance"},
-            {"icon": "💧", "title": "Nipple Discharge", "description": "Clear or bloody discharge from the nipple"},
-            {"icon": "🔴", "title": "Skin Changes", "description": "Redness, dimpling, or puckering of breast skin"},
-            {"icon": "😣", "title": "Pain", "description": "Breast pain or tenderness that doesn't go away"},
-            {"icon": "🔄", "title": "Nipple Changes", "description": "Nipple turning inward or changing position"}
+            {"icon": "🔴", "title": "Lump or Mass",
+                "description": "A new lump or mass in the breast or underarm area"},
+            {"icon": "🔄", "title": "Shape Changes",
+                "description": "Changes in breast size, shape, or appearance"},
+            {"icon": "💧", "title": "Nipple Discharge",
+                "description": "Clear or bloody discharge from the nipple"},
+            {"icon": "🔴", "title": "Skin Changes",
+                "description": "Redness, dimpling, or puckering of breast skin"},
+            {"icon": "😣", "title": "Pain",
+                "description": "Breast pain or tenderness that doesn't go away"},
+            {"icon": "🔄", "title": "Nipple Changes",
+                "description": "Nipple turning inward or changing position"}
         ],
         "detection_steps": [
-            {"number": 1, "title": "Upload Images", "description": "Upload your mammogram or ultrasound images securely"},
-            {"number": 2, "title": "AI Analysis", "description": "Our AI algorithms analyze the images for abnormalities"},
-            {"number": 3, "title": "Expert Review", "description": "Results are reviewed by certified radiologists"},
-            {"number": 4, "title": "Detailed Report", "description": "Receive comprehensive results and recommendations"}
+            {"number": 1, "title": "Upload Images",
+                "description": "Upload your mammogram or ultrasound images securely"},
+            {"number": 2, "title": "AI Analysis",
+                "description": "Our AI algorithms analyze the images for abnormalities"},
+            {"number": 3, "title": "Expert Review",
+                "description": "Results are reviewed by certified radiologists"},
+            {"number": 4, "title": "Detailed Report",
+                "description": "Receive comprehensive results and recommendations"}
         ],
         "risk_factors": [
             {
@@ -148,19 +160,37 @@ async def home(request: Request):
     }
     return templates.TemplateResponse("home.html", context)
 
-# Signup/Login page
+# Signup page
+
+
 @app.get("/signup", response_class=HTMLResponse)
 async def signup_form(request: Request):
     user = get_current_user(request)
     if user:
         return RedirectResponse(url="/dashboard")
-    
+
     return templates.TemplateResponse("signup.html", {
         "request": request,
         "user": user
     })
 
+# Login page
+
+
+@app.get("/login", response_class=HTMLResponse)
+async def login_form(request: Request):
+    user = get_current_user(request)
+    if user:
+        return RedirectResponse(url="/dashboard")
+
+    return templates.TemplateResponse("login.html", {
+        "request": request,
+        "user": user
+    })
+
 # Handle signup form submission
+
+
 @app.post("/signup")
 async def signup_submit(
     request: Request,
@@ -176,14 +206,14 @@ async def signup_submit(
             "error": "Passwords do not match",
             "form_data": {"full_name": full_name, "email": email}
         })
-    
+
     if len(password) < 6:
         return templates.TemplateResponse("signup.html", {
             "request": request,
             "error": "Password must be at least 6 characters",
             "form_data": {"full_name": full_name, "email": email}
         })
-    
+
     # Check if user already exists
     if email in users_db:
         return templates.TemplateResponse("signup.html", {
@@ -191,7 +221,7 @@ async def signup_submit(
             "error": "User already exists with this email",
             "form_data": {"full_name": full_name, "email": email}
         })
-    
+
     # Create new user
     user_id = str(uuid.uuid4())[:6]
     new_user = {
@@ -205,20 +235,22 @@ async def signup_submit(
         "allergies": "",
         "medications": ""
     }
-    
+
     users_db[email] = new_user
     medical_records_db[user_id] = []
     family_history_db[user_id] = []
-    
+
     # Create session
     session_id = str(uuid.uuid4())
     sessions_db[session_id] = email
-    
+
     response = RedirectResponse(url="/dashboard", status_code=303)
     response.set_cookie(key="session_id", value=session_id)
     return response
 
 # Handle login form submission
+
+
 @app.post("/login")
 async def login_submit(
     request: Request,
@@ -230,36 +262,40 @@ async def login_submit(
         # Create session
         session_id = str(uuid.uuid4())
         sessions_db[session_id] = email
-        
+
         response = RedirectResponse(url="/dashboard", status_code=303)
         response.set_cookie(key="session_id", value=session_id)
         return response
     else:
-        return templates.TemplateResponse("signup.html", {
+        return templates.TemplateResponse("login.html", {
             "request": request,
             "error": "Invalid email or password",
             "form_data": {"email": email}
         })
 
 # Dashboard page
+
+
 @app.get("/dashboard", response_class=HTMLResponse)
 async def dashboard(request: Request):
     user = get_current_user(request)
     if not user:
         return RedirectResponse(url="/signup")
-    
+
     # Get user's medical records and family history
     medical_records = medical_records_db.get(user["id"], [])
     family_history = family_history_db.get(user["id"], [])
-    
+
     # Calculate stats
-    completed_records = len([r for r in medical_records if r["status"] == "completed"])
-    pending_records = len([r for r in medical_records if r["status"] == "pending"])
+    completed_records = len(
+        [r for r in medical_records if r["status"] == "completed"])
+    pending_records = len(
+        [r for r in medical_records if r["status"] == "pending"])
     total_doctors = len(set(r["doctor"] for r in medical_records))
-    
+
     # Recent activities (last 3 records)
     recent_activities = medical_records[:3]
-    
+
     context = {
         "request": request,
         "user": user,
@@ -273,10 +309,12 @@ async def dashboard(request: Request):
         "medical_records": medical_records,
         "family_history": family_history
     }
-    
+
     return templates.TemplateResponse("dashboard.html", context)
 
 # Add medical record
+
+
 @app.post("/add_record")
 async def add_record(
     request: Request,
@@ -288,7 +326,7 @@ async def add_record(
     user = get_current_user(request)
     if not user:
         return RedirectResponse(url="/signup")
-    
+
     # Create new record
     new_record = {
         "id": len(medical_records_db[user["id"]]) + 1,
@@ -300,12 +338,14 @@ async def add_record(
         "status": "pending",
         "status_color": "#f59e0b"
     }
-    
+
     medical_records_db[user["id"]].append(new_record)
-    
+
     return RedirectResponse(url="/dashboard", status_code=303)
 
 # Update profile
+
+
 @app.post("/update_profile")
 async def update_profile(
     request: Request,
@@ -319,7 +359,7 @@ async def update_profile(
     user = get_current_user(request)
     if not user:
         return RedirectResponse(url="/signup")
-    
+
     # Update user data
     user["name"] = full_name
     user["age"] = age
@@ -327,10 +367,12 @@ async def update_profile(
     user["phone"] = phone
     user["emergency_contact"] = emergency_contact
     user["blood_type"] = blood_type
-    
+
     return RedirectResponse(url="/dashboard", status_code=303)
 
 # Update medical info
+
+
 @app.post("/update_medical_info")
 async def update_medical_info(
     request: Request,
@@ -340,14 +382,16 @@ async def update_medical_info(
     user = get_current_user(request)
     if not user:
         return RedirectResponse(url="/signup")
-    
+
     # Update medical info
     user["allergies"] = allergies
     user["medications"] = medications
-    
+
     return RedirectResponse(url="/dashboard", status_code=303)
 
 # Add family member
+
+
 @app.post("/add_family_member")
 async def add_family_member(
     request: Request,
@@ -358,19 +402,21 @@ async def add_family_member(
     user = get_current_user(request)
     if not user:
         return RedirectResponse(url="/signup")
-    
+
     # Add family member
     new_member = {
         "relation": relation,
         "age": age,
         "condition": condition
     }
-    
+
     family_history_db[user["id"]].append(new_member)
-    
+
     return RedirectResponse(url="/dashboard", status_code=303)
 
 # Remove family member
+
+
 @app.post("/remove_family_member")
 async def remove_family_member(
     request: Request,
@@ -379,14 +425,16 @@ async def remove_family_member(
     user = get_current_user(request)
     if not user:
         return RedirectResponse(url="/signup")
-    
+
     # Remove family member
     if 0 <= index < len(family_history_db[user["id"]]):
         family_history_db[user["id"]].pop(index)
-    
+
     return RedirectResponse(url="/dashboard", status_code=303)
 
 # Logout
+
+
 @app.get("/logout")
 async def logout():
     response = RedirectResponse(url="/")
@@ -394,17 +442,21 @@ async def logout():
     return response
 
 # API endpoints for AJAX requests
+
+
 @app.get("/api/stats")
 async def get_stats(request: Request):
     user = get_current_user(request)
     if not user:
         raise HTTPException(status_code=401, detail="Not authenticated")
-    
+
     medical_records = medical_records_db.get(user["id"], [])
-    completed_records = len([r for r in medical_records if r["status"] == "completed"])
-    pending_records = len([r for r in medical_records if r["status"] == "pending"])
+    completed_records = len(
+        [r for r in medical_records if r["status"] == "completed"])
+    pending_records = len(
+        [r for r in medical_records if r["status"] == "pending"])
     total_doctors = len(set(r["doctor"] for r in medical_records))
-    
+
     return {
         "total_records": len(medical_records),
         "completed_records": completed_records,

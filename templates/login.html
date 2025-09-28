@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Sign Up - BreastCare AI{% endblock %}
+{% block title %}Login - BreastCare AI{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -162,7 +162,6 @@
     text-decoration: underline;
   }
 
-
   /* Error Messages */
   .error-message {
     color: #ef4444;
@@ -232,10 +231,8 @@
         src="https://cdn-icons-png.flaticon.com/512/2966/2966488.png"
         alt="BreastCare AI Logo"
       />
-      <h1 class="auth-title">Create Account</h1>
-      <p class="auth-subtitle">
-        Join BreastCare AI for better health monitoring
-      </p>
+      <h1 class="auth-title">Welcome Back</h1>
+      <p class="auth-subtitle">Sign in to your BreastCare AI account</p>
     </div>
 
     {% if error %}
@@ -244,18 +241,7 @@
     </div>
     {% endif %}
 
-    <form id="signupForm" class="auth-form" method="POST" action="{{ url_for('signup_submit') }}">
-      <div class="form-group">
-        <input
-          type="text"
-          name="full_name"
-          placeholder="Full name"
-          class="form-input"
-          required
-          value="{{ form_data.full_name if form_data else '' }}"
-        />
-        <div class="error-message" id="name-error"></div>
-      </div>
+    <form id="loginForm" class="auth-form" method="POST" action="{{ url_for('login_submit') }}">
       <div class="form-group">
         <input
           type="email"
@@ -277,25 +263,16 @@
         />
         <div class="error-message" id="password-error"></div>
       </div>
-      <div class="form-group">
-        <input
-          type="password"
-          name="confirm_password"
-          placeholder="Confirm password"
-          class="form-input"
-          required
-        />
-        <div class="error-message" id="confirm-password-error"></div>
+      <div class="forgot-password">
+        <a href="#" class="auth-link">Forgot password?</a>
       </div>
-      <button type="submit" class="btn btn-primary">
-        Create Account
-      </button>
+      <button type="submit" class="btn btn-primary">Sign In</button>
     </form>
 
     <div class="auth-footer">
       <p>
-        Already have an account?
-        <a href="{{ url_for('login_form') }}" class="auth-link">Sign in</a>
+        New to BreastCare AI?
+        <a href="{{ url_for('signup_form') }}" class="auth-link">Create account</a>
       </p>
       <p>
         <a href="{{ url_for('home') }}" class="auth-link">← Back to Home</a>
@@ -309,13 +286,12 @@
 <script>
   // Form validation
   function validateForm() {
-    const form = document.getElementById("signupForm");
+    const form = document.getElementById("loginForm");
     const inputs = form.querySelectorAll('.form-input');
     let isValid = true;
 
     inputs.forEach(input => {
-      const errorElement = document.getElementById(input.name + '-error') || 
-                          document.getElementById(input.name.replace('_', '-') + '-error');
+      const errorElement = document.getElementById(input.name + '-error');
       
       if (input.hasAttribute('required') && !input.value.trim()) {
         showError(input, errorElement, 'This field is required');
@@ -323,17 +299,6 @@
       } else if (input.type === 'email' && input.value && !isValidEmail(input.value)) {
         showError(input, errorElement, 'Please enter a valid email address');
         isValid = false;
-      } else if (input.name === 'password' && input.value && input.value.length < 6) {
-        showError(input, errorElement, 'Password must be at least 6 characters');
-        isValid = false;
-      } else if (input.name === 'confirm_password') {
-        const password = form.querySelector('input[name="password"]').value;
-        if (input.value !== password) {
-          showError(input, errorElement, 'Passwords do not match');
-          isValid = false;
-        } else {
-          clearError(input, errorElement);
-        }
       } else {
         clearError(input, errorElement);
       }
@@ -363,7 +328,7 @@
   }
 
   // Form submission
-  document.getElementById("signupForm").addEventListener("submit", function (e) {
+  document.getElementById("loginForm").addEventListener("submit", function (e) {
     if (!validateForm()) {
       e.preventDefault();
     }
@@ -372,8 +337,7 @@
   // Clear errors on input
   document.querySelectorAll('.form-input').forEach(input => {
     input.addEventListener('input', function() {
-      const errorElement = document.getElementById(this.name + '-error') || 
-                          document.getElementById(this.name.replace('_', '-') + '-error');
+      const errorElement = document.getElementById(this.name + '-error');
       clearError(this, errorElement);
     });
   });
