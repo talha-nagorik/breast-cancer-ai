@@ -1,0 +1,485 @@
+{% extends "base.html" %}
+
+{% block title %}BreastCare AI - Authentication{% endblock %}
+
+{% block extra_css %}
+<style>
+  body {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    padding-top: 80px;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+    opacity: 0.3;
+    pointer-events: none;
+  }
+
+  /* Auth Container */
+  .auth-container {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    max-width: 450px;
+    margin-top: 60px;
+  }
+
+  /* Auth Card */
+  .auth-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border-radius: 20px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    padding: 3rem 2rem;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease;
+  }
+
+  .auth-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.15);
+  }
+
+  /* Logo Section */
+  .auth-logo {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+
+  .auth-logo img {
+    width: 80px;
+    height: 80px;
+    margin-bottom: 1rem;
+    border-radius: 50%;
+    background: linear-gradient(45deg, #667eea, #764ba2);
+    padding: 1rem;
+    box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+  }
+
+  .auth-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 0.5rem;
+    background: linear-gradient(45deg, #667eea, #764ba2);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .auth-subtitle {
+    color: #666;
+    font-size: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  /* Form Styles */
+  .auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .form-group {
+    position: relative;
+  }
+
+  .form-input {
+    width: 100%;
+    padding: 1rem 1.5rem;
+    border: 2px solid #e1e5e9;
+    border-radius: 12px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+  }
+
+  .form-input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+    background: white;
+  }
+
+  .form-input::placeholder {
+    color: #999;
+  }
+
+  /* Auth Footer */
+  .auth-footer {
+    text-align: center;
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid #e1e5e9;
+  }
+
+  .auth-footer p {
+    color: #666;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+  }
+
+  .auth-link {
+    color: #667eea;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+  }
+
+  .auth-link:hover {
+    color: #764ba2;
+    text-decoration: underline;
+  }
+
+  .forgot-password {
+    text-align: right;
+    margin-bottom: 1rem;
+  }
+
+  .forgot-password a {
+    color: #667eea;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+  }
+
+  .forgot-password a:hover {
+    color: #764ba2;
+    text-decoration: underline;
+  }
+
+  /* Page Transitions */
+  .auth-page {
+    display: none;
+    animation: fadeIn 0.5s ease;
+  }
+
+  .auth-page.active {
+    display: block;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Error Messages */
+  .error-message {
+    color: #ef4444;
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+    display: none;
+  }
+
+  .form-input.error {
+    border-color: #ef4444;
+  }
+
+  /* Success Messages */
+  .success-message {
+    color: #10b981;
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+    display: none;
+  }
+
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    body {
+      padding: 1rem;
+      padding-top: 80px;
+    }
+
+    .auth-card {
+      padding: 2rem 1.5rem;
+    }
+
+    .auth-title {
+      font-size: 1.5rem;
+    }
+
+    .btn {
+      padding: 0.875rem 1.5rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .auth-card {
+      padding: 1.5rem 1rem;
+    }
+
+    .auth-title {
+      font-size: 1.25rem;
+    }
+
+    .form-input {
+      padding: 0.875rem 1rem;
+    }
+
+    .btn {
+      padding: 0.75rem 1rem;
+      font-size: 0.9rem;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+  <!-- Sign Up Page -->
+  <div id="signupPage" class="auth-page active">
+    <div class="auth-card">
+      <div class="auth-logo">
+        <img
+          src="https://cdn-icons-png.flaticon.com/512/2966/2966488.png"
+          alt="BreastCare AI Logo"
+        />
+        <h1 class="auth-title">Create Account</h1>
+        <p class="auth-subtitle">
+          Join BreastCare AI for better health monitoring
+        </p>
+      </div>
+
+      <form id="signupForm" class="auth-form" method="POST" action="{{ url_for('signup_submit') }}">
+        <div class="form-group">
+          <input
+            type="text"
+            name="full_name"
+            placeholder="Full name"
+            class="form-input"
+            required
+            value="{{ form_data.full_name if form_data else '' }}"
+          />
+          <div class="error-message" id="name-error"></div>
+        </div>
+        <div class="form-group">
+          <input
+            type="email"
+            name="email"
+            placeholder="Email address"
+            class="form-input"
+            required
+            value="{{ form_data.email if form_data else '' }}"
+          />
+          <div class="error-message" id="email-error"></div>
+        </div>
+        <div class="form-group">
+          <input
+            type="password"
+            name="password"
+            placeholder="Password"
+            class="form-input"
+            required
+          />
+          <div class="error-message" id="password-error"></div>
+        </div>
+        <div class="form-group">
+          <input
+            type="password"
+            name="confirm_password"
+            placeholder="Confirm password"
+            class="form-input"
+            required
+          />
+          <div class="error-message" id="confirm-password-error"></div>
+        </div>
+        <button type="submit" class="btn btn-primary">
+          Create Account
+        </button>
+      </form>
+
+      <div class="auth-footer">
+        <p>
+          Already have an account?
+          <a href="#" id="goLogin" class="auth-link">Sign in</a>
+        </p>
+        <p>
+          <a href="{{ url_for('home') }}" class="auth-link">← Back to Home</a>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Login Page -->
+  <div id="loginPage" class="auth-page">
+    <div class="auth-card">
+      <div class="auth-logo">
+        <img
+          src="https://cdn-icons-png.flaticon.com/512/2966/2966488.png"
+          alt="BreastCare AI Logo"
+        />
+        <h1 class="auth-title">Welcome Back</h1>
+        <p class="auth-subtitle">Sign in to your BreastCare AI account</p>
+      </div>
+
+      <form id="loginForm" class="auth-form" method="POST" action="{{ url_for('login_submit') }}">
+        <div class="form-group">
+          <input
+            type="email"
+            name="email"
+            placeholder="Email address"
+            class="form-input"
+            required
+            value="{{ form_data.email if form_data else '' }}"
+          />
+          <div class="error-message" id="login-email-error"></div>
+        </div>
+        <div class="form-group">
+          <input
+            type="password"
+            name="password"
+            placeholder="Password"
+            class="form-input"
+            required
+          />
+          <div class="error-message" id="login-password-error"></div>
+        </div>
+        <div class="forgot-password">
+          <a href="#" class="auth-link">Forgot password?</a>
+        </div>
+        <button type="submit" class="btn btn-primary">Sign In</button>
+      </form>
+
+      <div class="auth-footer">
+        <p>
+          New to BreastCare AI?
+          <a href="#" id="goSignup" class="auth-link">Create account</a>
+        </p>
+        <p>
+          <a href="{{ url_for('home') }}" class="auth-link">← Back to Home</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // Page navigation
+  const signupPage = document.getElementById("signupPage");
+  const loginPage = document.getElementById("loginPage");
+
+  document.getElementById("goLogin").onclick = (e) => {
+    e.preventDefault();
+    signupPage.classList.remove("active");
+    loginPage.classList.add("active");
+  };
+
+  document.getElementById("goSignup").onclick = (e) => {
+    e.preventDefault();
+    loginPage.classList.remove("active");
+    signupPage.classList.add("active");
+  };
+
+  // Form validation
+  function validateForm(formId) {
+    const form = document.getElementById(formId);
+    const inputs = form.querySelectorAll('.form-input');
+    let isValid = true;
+
+    inputs.forEach(input => {
+      const errorElement = document.getElementById(input.name + '-error') || 
+                          document.getElementById(input.name.replace('_', '-') + '-error');
+      
+      if (input.hasAttribute('required') && !input.value.trim()) {
+        showError(input, errorElement, 'This field is required');
+        isValid = false;
+      } else if (input.type === 'email' && input.value && !isValidEmail(input.value)) {
+        showError(input, errorElement, 'Please enter a valid email address');
+        isValid = false;
+      } else if (input.name === 'password' && input.value && input.value.length < 6) {
+        showError(input, errorElement, 'Password must be at least 6 characters');
+        isValid = false;
+      } else if (input.name === 'confirm_password') {
+        const password = form.querySelector('input[name="password"]').value;
+        if (input.value !== password) {
+          showError(input, errorElement, 'Passwords do not match');
+          isValid = false;
+        } else {
+          clearError(input, errorElement);
+        }
+      } else {
+        clearError(input, errorElement);
+      }
+    });
+
+    return isValid;
+  }
+
+  function showError(input, errorElement, message) {
+    input.classList.add('error');
+    if (errorElement) {
+      errorElement.textContent = message;
+      errorElement.style.display = 'block';
+    }
+  }
+
+  function clearError(input, errorElement) {
+    input.classList.remove('error');
+    if (errorElement) {
+      errorElement.style.display = 'none';
+    }
+  }
+
+  function isValidEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  }
+
+  // Form submission
+  document.getElementById("signupForm").addEventListener("submit", function (e) {
+    if (!validateForm("signupForm")) {
+      e.preventDefault();
+    }
+  });
+
+  document.getElementById("loginForm").addEventListener("submit", function (e) {
+    if (!validateForm("loginForm")) {
+      e.preventDefault();
+    }
+  });
+
+  // Clear errors on input
+  document.querySelectorAll('.form-input').forEach(input => {
+    input.addEventListener('input', function() {
+      const errorElement = document.getElementById(this.name + '-error') || 
+                          document.getElementById(this.name.replace('_', '-') + '-error');
+      clearError(this, errorElement);
+    });
+  });
+
+  // Add smooth scrolling for navigation links
+  document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+    anchor.addEventListener("click", function (e) {
+      e.preventDefault();
+      const target = document.querySelector(this.getAttribute("href"));
+      if (target) {
+        target.scrollIntoView({
+          behavior: "smooth",
+        });
+      }
+    });
+  });
+</script>
+{% endblock %}
