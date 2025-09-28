@@ -1,0 +1,59 @@
+<!-- Overview Tab Component -->
+<div id="overview-tab" class="content-section">
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <div class="bg-white p-6 rounded-xl shadow-lg border-l-4 border-indigo-500 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-sm font-medium text-gray-600">Total Records</h3>
+        <span class="text-2xl text-indigo-500">📋</span>
+      </div>
+      <div class="text-3xl font-bold text-gray-900 mb-2">{{ stats.total_records }}</div>
+      <div class="text-sm text-green-600 font-medium">+2 this month</div>
+    </div>
+    
+    <div class="bg-white p-6 rounded-xl shadow-lg border-l-4 border-green-500 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-sm font-medium text-gray-600">Completed</h3>
+        <span class="text-2xl text-green-500">✅</span>
+      </div>
+      <div class="text-3xl font-bold text-gray-900 mb-2">{{ stats.completed_records }}</div>
+      <div class="text-sm text-green-600 font-medium">All up to date</div>
+    </div>
+    
+    <div class="bg-white p-6 rounded-xl shadow-lg border-l-4 border-yellow-500 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-sm font-medium text-gray-600">Pending</h3>
+        <span class="text-2xl text-yellow-500">⏳</span>
+      </div>
+      <div class="text-3xl font-bold text-gray-900 mb-2">{{ stats.pending_records }}</div>
+      <div class="text-sm text-yellow-600 font-medium">Awaiting review</div>
+    </div>
+    
+    <div class="bg-white p-6 rounded-xl shadow-lg border-l-4 border-blue-500 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-sm font-medium text-gray-600">Doctors</h3>
+        <span class="text-2xl text-blue-500">👩‍⚕️</span>
+      </div>
+      <div class="text-3xl font-bold text-gray-900 mb-2">{{ stats.total_doctors }}</div>
+      <div class="text-sm text-blue-600 font-medium">Active providers</div>
+    </div>
+  </div>
+
+  <!-- Recent Activity -->
+  <div class="bg-white rounded-xl shadow-lg p-6">
+    <h3 class="text-xl font-semibold text-gray-900 mb-6">Recent Activity</h3>
+    <div class="space-y-4">
+      {% for activity in recent_activities %}
+      <div class="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
+        <div class="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600">
+          📋
+        </div>
+        <div class="flex-1">
+          <div class="font-medium text-gray-900">{{ activity.type }} - {{ activity.doctor }}</div>
+          <div class="text-sm text-gray-600">{{ activity.date }}</div>
+        </div>
+        <div class="text-sm text-gray-500">{{ activity.status }}</div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
