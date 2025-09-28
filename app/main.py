@@ -5,7 +5,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.gzip import GZipMiddleware
 
 from .database.init import initialize_database
-from .routers import users, medical
+from .routers import users, medical, ml
 from .internal import admin
 
 app = FastAPI(title="AI Medical Records Application")
@@ -20,6 +20,7 @@ templates = Jinja2Templates(directory="templates")
 # Include routers
 app.include_router(users.router)
 app.include_router(medical.router)
+app.include_router(ml.router)  # Add ML router
 app.include_router(admin.router)
 
 # Initialize database and apply migrations on startup
@@ -56,7 +57,7 @@ async def home(request: Request, user: dict | None = None):
             {
                 "icon": "🔬",
                 "title": "Our Technology",
-                "description": "Using cutting-edge artificial intelligence and machine learning algorithms, our system provides accurate, non-invasive breast cancer detection."
+                "description": "Using cutting-edge artificial intelligence and machine learning algorithms, our system provides accurate, non-invasive breast cancer detection using the Wisconsin dataset."
             }
         ],
         "symptoms": [
@@ -74,12 +75,12 @@ async def home(request: Request, user: dict | None = None):
                 "description": "Nipple turning inward or changing position"}
         ],
         "detection_steps": [
-            {"number": 1, "title": "Upload Images",
-                "description": "Upload your mammogram or ultrasound images securely"},
+            {"number": 1, "title": "Input Features",
+                "description": "Enter your medical test results and measurements"},
             {"number": 2, "title": "AI Analysis",
-                "description": "Our AI algorithms analyze the images for abnormalities"},
-            {"number": 3, "title": "Expert Review",
-                "description": "Results are reviewed by certified radiologists"},
+                "description": "Our AI algorithms analyze the data using the Wisconsin dataset"},
+            {"number": 3, "title": "Risk Assessment",
+                "description": "Get detailed risk assessment and confidence scores"},
             {"number": 4, "title": "Detailed Report",
                 "description": "Receive comprehensive results and recommendations"}
         ],
