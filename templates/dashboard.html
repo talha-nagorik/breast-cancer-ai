@@ -6,29 +6,15 @@
 
 {% block content %}
 <div class="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 pt-20">
-  <!-- Header -->
-  <header class="bg-white shadow-sm border-b border-gray-200 sticky top-20 z-40">
+  <!-- Dashboard Title -->
+  <div class="bg-white shadow-sm border-b border-gray-200">
     <div class="max-w-7xl mx-auto px-8 py-6">
-      <div class="flex justify-between items-center">
-        <div>
-          <h1 class="text-3xl font-bold text-gray-900">Patient Dashboard</h1>
-          <p class="text-gray-600 mt-1">Welcome back, {{ user.name }}</p>
-        </div>
-        <div class="flex items-center gap-4">
-          <div class="flex items-center gap-3">
-            <div class="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-lg">
-              {{ user.name[0] }}
-            </div>
-            <div>
-              <div class="font-semibold text-gray-900">{{ user.name }}</div>
-              <div class="text-sm text-gray-500">Patient</div>
-            </div>
-          </div>
-          <a href="{{ url_for('logout') }}" class="px-4 py-2 bg-red-500 text-white text-sm font-medium rounded-lg hover:bg-red-600 transition-colors duration-300">Logout</a>
-        </div>
+      <div>
+        <h1 class="text-3xl font-bold text-gray-900">Patient Dashboard</h1>
+        <p class="text-gray-600 mt-1">Welcome back, {{ user.name }}</p>
       </div>
     </div>
-  </header>
+  </div>
 
   <!-- Navigation Tabs -->
   <nav class="bg-white border-b border-gray-200">
