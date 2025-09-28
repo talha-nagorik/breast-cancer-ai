@@ -1,0 +1,11 @@
+{
+	"name": "tailwindcss",
+	"scripts": {
+		"dev": "pnpx @tailwindcss/cli -i ./styles/app.css -o ../static/css/app.css --watch",
+		"build": "pnpx @tailwindcss/cli -i ./styles/app.css -o ../static/css/app.css"
+	},
+	"dependencies": {
+		"tailwindcss": "^4.1.13",
+		"@tailwindcss/cli": "^4.1.13"
+	}
+}
