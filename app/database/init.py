@@ -45,7 +45,14 @@ def create_database() -> None:
 
     # Create the database file by connecting to it
     # SQLite will create the file if it doesn't exist
-    test_engine = create_engine(DATABASE_URL)
+    test_engine = create_engine(
+        DATABASE_URL,
+        connect_args={
+            "check_same_thread": False,
+            "timeout": 30,
+        },
+        pool_pre_ping=True,
+    )
     with test_engine.connect() as conn:
         # Execute a simple query to ensure the database is created
         conn.execute(text("SELECT 1"))

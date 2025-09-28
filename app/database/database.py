@@ -3,8 +3,16 @@ from sqlmodel import SQLModel, create_engine, Session
 # Database configuration
 DATABASE_URL = "sqlite:///./app.db"
 
-# Create engine
-engine = create_engine(DATABASE_URL, echo=True)
+# Create engine with SQLite-specific configurations
+engine = create_engine(
+    DATABASE_URL, 
+    echo=True,
+    connect_args={
+        "check_same_thread": False,  # Allow multiple threads to access the database
+        "timeout": 30,  # Wait up to 30 seconds for database lock
+    },
+    pool_pre_ping=True,  # Verify connections before use
+)
 
 # Note: Database initialization is now handled by app.database.init module
 # This function is kept for backward compatibility but should not be used
