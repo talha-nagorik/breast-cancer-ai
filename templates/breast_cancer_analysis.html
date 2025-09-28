@@ -3,38 +3,100 @@
 {% block title %}Breast Cancer Analysis - AI Medical Records{% endblock %}
 
 {% block content %}
-<div class="min-h-screen bg-gray-50 py-8">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <!-- Header -->
-        <div class="mb-8">
-            <h1 class="text-3xl font-bold text-gray-900">Breast Cancer Analysis</h1>
-            <p class="mt-2 text-gray-600">AI-powered breast cancer risk assessment using the Wisconsin dataset</p>
+<div class="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 pt-20">
+    <div class="max-w-7xl mx-auto px-8 py-8">
+        <!-- Navigation Breadcrumb -->
+        <div class="mb-4">
+            <nav class="flex" aria-label="Breadcrumb">
+                <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                    <li class="inline-flex items-center">
+                        <a href="/dashboard" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600">
+                            <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path>
+                            </svg>
+                            Dashboard
+                        </a>
+                    </li>
+                    <li>
+                        <div class="flex items-center">
+                            <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2">Breast Cancer Analysis</span>
+                        </div>
+                    </li>
+                </ol>
+            </nav>
+        </div>
+
+        <!-- Page Header -->
+        <div class="bg-white shadow-sm border-b border-gray-200 mb-8">
+            <div class="px-6 py-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h1 class="text-3xl font-bold text-gray-900">Breast Cancer Analysis</h1>
+                        <p class="text-gray-600 mt-1">AI-powered breast cancer risk assessment using the Wisconsin dataset</p>
+                    </div>
+                    <div class="flex space-x-3">
+                        <button id="train-model-btn" 
+                            class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors">
+                            Train Model
+                        </button>
+                        <button id="refresh-predictions-btn" 
+                            class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
+                            Refresh History
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Recent Predictions -->
-        {% if recent_predictions %}
         <div class="mb-8">
             <h2 class="text-xl font-semibold text-gray-900 mb-4">Recent Predictions</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {% for pred in recent_predictions %}
-                <div class="bg-white rounded-lg shadow p-4">
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="text-sm font-medium text-gray-500">{{ pred.created_at }}</span>
-                        <span class="px-2 py-1 text-xs font-medium rounded-full
-                            {% if pred.prediction == 'Benign' %}bg-green-100 text-green-800
-                            {% else %}bg-red-100 text-red-800{% endif %}">
-                            {{ pred.prediction }}
-                        </span>
+            <div id="predictions-container">
+                {% if recent_predictions %}
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {% for pred in recent_predictions %}
+                    <div class="bg-white rounded-lg shadow p-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-sm font-medium text-gray-500">{{ pred.created_at }}</span>
+                            <span class="px-2 py-1 text-xs font-medium rounded-full
+                                {% if pred.prediction == 'Benign' %}bg-green-100 text-green-800
+                                {% else %}bg-red-100 text-red-800{% endif %}">
+                                {{ pred.prediction }}
+                            </span>
+                        </div>
+                        <div class="text-sm text-gray-600">
+                            <p>Confidence: {{ "%.1f"|format(pred.confidence * 100) }}%</p>
+                            <p>Risk Level: {{ pred.risk_level }}</p>
+                        </div>
                     </div>
-                    <div class="text-sm text-gray-600">
-                        <p>Confidence: {{ "%.1f"|format(pred.confidence * 100) }}%</p>
-                        <p>Risk Level: {{ pred.risk_level }}</p>
-                    </div>
+                    {% endfor %}
                 </div>
-                {% endfor %}
+                {% else %}
+                <div class="text-center py-8 text-gray-500">
+                    <p>No predictions yet. Submit your first analysis below!</p>
+                </div>
+                {% endif %}
             </div>
         </div>
-        {% endif %}
+
+        <!-- Feature Importance -->
+        <div class="mb-8">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-xl font-semibold text-gray-900">Feature Importance</h2>
+                <button id="load-feature-importance-btn" 
+                    class="bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-colors">
+                    Load Feature Importance
+                </button>
+            </div>
+            <div id="feature-importance-container" class="bg-white rounded-lg shadow p-6">
+                <div class="text-center py-8 text-gray-500">
+                    <p>Click "Load Feature Importance" to see which features are most important for predictions.</p>
+                </div>
+            </div>
+        </div>
 
         <!-- Prediction Form -->
         <div class="bg-white rounded-lg shadow">
@@ -43,7 +105,7 @@
                 <p class="text-sm text-gray-600">Enter your medical test results for AI analysis</p>
             </div>
             
-            <form method="POST" action="/submit-prediction" class="p-6">
+            <form id="prediction-form" class="p-6">
                 <!-- Mean Features -->
                 <div class="mb-8">
                     <h3 class="text-lg font-medium text-gray-900 mb-4">Mean Values</h3>
@@ -303,4 +365,246 @@
         {% endif %}
     </div>
 </div>
+
+<!-- JavaScript for ML API Integration -->
+<script src="/static/js/ml-api.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Ensure ML API is loaded
+    if (typeof mlAPI === 'undefined') {
+        console.error('ML API not loaded properly');
+        return;
+    }
+    // Train Model Button
+    document.getElementById('train-model-btn').addEventListener('click', async function() {
+        const btn = this;
+        const originalText = btn.textContent;
+        
+        try {
+            btn.textContent = 'Training...';
+            btn.disabled = true;
+            
+            const result = await mlAPI.trainModel();
+            
+            // Show success message
+            showNotification('Model trained successfully! Accuracy: ' + (result.results.accuracy * 100).toFixed(2) + '%', 'success');
+            
+        } catch (error) {
+            showNotification('Failed to train model: ' + error.message, 'error');
+        } finally {
+            btn.textContent = originalText;
+            btn.disabled = false;
+        }
+    });
+
+    // Refresh Predictions Button
+    document.getElementById('refresh-predictions-btn').addEventListener('click', async function() {
+        const btn = this;
+        const originalText = btn.textContent;
+        
+        try {
+            btn.textContent = 'Loading...';
+            btn.disabled = true;
+            
+            const predictions = await mlAPI.getPredictions();
+            updatePredictionsDisplay(predictions);
+            
+        } catch (error) {
+            showNotification('Failed to load predictions: ' + error.message, 'error');
+        } finally {
+            btn.textContent = originalText;
+            btn.disabled = false;
+        }
+    });
+
+    // Load Feature Importance Button
+    document.getElementById('load-feature-importance-btn').addEventListener('click', async function() {
+        const btn = this;
+        const originalText = btn.textContent;
+        
+        try {
+            btn.textContent = 'Loading...';
+            btn.disabled = true;
+            
+            const importance = await mlAPI.getFeatureImportance();
+            updateFeatureImportanceDisplay(importance);
+            
+        } catch (error) {
+            showNotification('Failed to load feature importance: ' + error.message, 'error');
+        } finally {
+            btn.textContent = originalText;
+            btn.disabled = false;
+        }
+    });
+
+    // Prediction Form
+    document.getElementById('prediction-form').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const form = this;
+        const formData = new FormData(form);
+        const submitBtn = form.querySelector('button[type="submit"]');
+        const originalText = submitBtn.textContent;
+        
+        try {
+            submitBtn.textContent = 'Analyzing...';
+            submitBtn.disabled = true;
+            
+            // Convert form data to features
+            const features = mlAPI.formToFeatures(formData);
+            
+            // Make prediction via API
+            const result = await mlAPI.predict(features);
+            
+            // Display results
+            displayPredictionResult(result);
+            
+            // Refresh predictions list
+            const predictions = await mlAPI.getPredictions();
+            updatePredictionsDisplay(predictions);
+            
+            showNotification('Analysis completed successfully!', 'success');
+            
+        } catch (error) {
+            showNotification('Analysis failed: ' + error.message, 'error');
+        } finally {
+            submitBtn.textContent = originalText;
+            submitBtn.disabled = false;
+        }
+    });
+
+    // Helper functions
+    function showNotification(message, type) {
+        const notification = document.createElement('div');
+        notification.className = `fixed top-4 right-4 p-4 rounded-md shadow-lg z-50 ${
+            type === 'success' ? 'bg-green-100 text-green-800 border border-green-200' : 
+            type === 'error' ? 'bg-red-100 text-red-800 border border-red-200' : 
+            'bg-blue-100 text-blue-800 border border-blue-200'
+        }`;
+        notification.textContent = message;
+        
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.remove();
+        }, 5000);
+    }
+
+    function updatePredictionsDisplay(predictions) {
+        const container = document.getElementById('predictions-container');
+        
+        if (predictions.length === 0) {
+            container.innerHTML = '<div class="text-center py-8 text-gray-500"><p>No predictions yet. Submit your first analysis below!</p></div>';
+            return;
+        }
+        
+        const html = '<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">' +
+            predictions.map(pred => `
+                <div class="bg-white rounded-lg shadow p-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm font-medium text-gray-500">${new Date(pred.created_at).toLocaleString()}</span>
+                        <span class="px-2 py-1 text-xs font-medium rounded-full ${
+                            pred.prediction === 'Benign' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                        }">
+                            ${pred.prediction}
+                        </span>
+                    </div>
+                    <div class="text-sm text-gray-600">
+                        <p>Confidence: ${(pred.confidence * 100).toFixed(1)}%</p>
+                        <p>Risk Level: ${pred.risk_level}</p>
+                    </div>
+                </div>
+            `).join('') + '</div>';
+        
+        container.innerHTML = html;
+    }
+
+    function updateFeatureImportanceDisplay(importance) {
+        const container = document.getElementById('feature-importance-container');
+        
+        const sortedFeatures = Object.entries(importance)
+            .sort(([,a], [,b]) => b - a)
+            .slice(0, 10); // Top 10 features
+        
+        const html = '<div class="space-y-3">' +
+            sortedFeatures.map(([feature, importance]) => `
+                <div class="flex items-center justify-between">
+                    <span class="text-sm font-medium text-gray-700">${feature.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</span>
+                    <div class="flex items-center space-x-2">
+                        <div class="w-32 bg-gray-200 rounded-full h-2">
+                            <div class="bg-blue-600 h-2 rounded-full" style="width: ${importance * 100}%"></div>
+                        </div>
+                        <span class="text-sm text-gray-600 w-12">${(importance * 100).toFixed(1)}%</span>
+                    </div>
+                </div>
+            `).join('') + '</div>';
+        
+        container.innerHTML = html;
+    }
+
+    function displayPredictionResult(result) {
+        // Remove existing result if any
+        const existingResult = document.getElementById('prediction-result');
+        if (existingResult) {
+            existingResult.remove();
+        }
+        
+        // Create result display
+        const resultHtml = `
+            <div id="prediction-result" class="mt-8 bg-white rounded-lg shadow p-6">
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">Analysis Results</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="text-center p-4 rounded-lg ${
+                        result.prediction === 'Benign' ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'
+                    }">
+                        <h3 class="text-lg font-medium ${
+                            result.prediction === 'Benign' ? 'text-green-800' : 'text-red-800'
+                        }">
+                            ${result.prediction}
+                        </h3>
+                        <p class="text-sm text-gray-600">Prediction</p>
+                    </div>
+                    <div class="text-center p-4 rounded-lg bg-blue-50 border border-blue-200">
+                        <h3 class="text-lg font-medium text-blue-800">
+                            ${(result.confidence * 100).toFixed(1)}%
+                        </h3>
+                        <p class="text-sm text-gray-600">Confidence</p>
+                    </div>
+                    <div class="text-center p-4 rounded-lg bg-yellow-50 border border-yellow-200">
+                        <h3 class="text-lg font-medium text-yellow-800">
+                            ${result.risk_level}
+                        </h3>
+                        <p class="text-sm text-gray-600">Risk Level</p>
+                    </div>
+                </div>
+                
+                <div class="mt-6">
+                    <h4 class="text-md font-medium text-gray-900 mb-2">Probability Breakdown</h4>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="text-center p-3 rounded bg-green-50">
+                            <p class="text-sm text-gray-600">Benign</p>
+                            <p class="text-lg font-medium text-green-800">
+                                ${(result.probabilities.benign * 100).toFixed(1)}%
+                            </p>
+                        </div>
+                        <div class="text-center p-3 rounded bg-red-50">
+                            <p class="text-sm text-gray-600">Malignant</p>
+                            <p class="text-lg font-medium text-red-800">
+                                ${(result.probabilities.malignant * 100).toFixed(1)}%
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Insert after the form
+        const form = document.getElementById('prediction-form');
+        form.insertAdjacentHTML('afterend', resultHtml);
+        
+        // Scroll to result
+        document.getElementById('prediction-result').scrollIntoView({ behavior: 'smooth' });
+    }
+});
+</script>
 {% endblock %}

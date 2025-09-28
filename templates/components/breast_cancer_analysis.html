@@ -14,46 +14,16 @@
 
     <!-- Recent Predictions -->
     <div class="mb-6">
-      <h3 class="text-lg font-semibold text-gray-900 mb-4">Recent Predictions</h3>
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        <!-- Sample prediction cards - these would be populated from the database -->
-        <div class="bg-green-50 border border-green-200 rounded-lg p-4">
-          <div class="flex items-center justify-between mb-2">
-            <span class="text-sm font-medium text-gray-500">2024-01-15 14:30</span>
-            <span class="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">
-              Benign
-            </span>
-          </div>
-          <div class="text-sm text-gray-600">
-            <p>Confidence: 94.2%</p>
-            <p>Risk Level: Low</p>
-          </div>
-        </div>
-        
-        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-          <div class="flex items-center justify-between mb-2">
-            <span class="text-sm font-medium text-gray-500">2024-01-10 09:15</span>
-            <span class="px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800">
-              Benign
-            </span>
-          </div>
-          <div class="text-sm text-gray-600">
-            <p>Confidence: 78.5%</p>
-            <p>Risk Level: Medium</p>
-          </div>
-        </div>
-        
-        <div class="bg-green-50 border border-green-200 rounded-lg p-4">
-          <div class="flex items-center justify-between mb-2">
-            <span class="text-sm font-medium text-gray-500">2024-01-05 16:45</span>
-            <span class="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">
-              Benign
-            </span>
-          </div>
-          <div class="text-sm text-gray-600">
-            <p>Confidence: 89.1%</p>
-            <p>Risk Level: Low</p>
-          </div>
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg font-semibold text-gray-900">Recent Predictions</h3>
+        <button id="dashboard-refresh-predictions" 
+          class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+          Refresh
+        </button>
+      </div>
+      <div id="dashboard-predictions-container">
+        <div class="text-center py-4 text-gray-500">
+          <p>Loading predictions...</p>
         </div>
       </div>
     </div>
@@ -112,3 +82,66 @@
     </div>
   </div>
 </div>
+
+<!-- JavaScript for Dashboard Integration -->
+<script src="/static/js/ml-api.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Ensure ML API is loaded
+    if (typeof mlAPI === 'undefined') {
+        console.error('ML API not loaded properly');
+        return;
+    }
+    // Load predictions when the breast cancer tab is shown
+    const refreshBtn = document.getElementById('dashboard-refresh-predictions');
+    if (refreshBtn) {
+        refreshBtn.addEventListener('click', loadDashboardPredictions);
+        
+        // Load predictions initially
+        loadDashboardPredictions();
+    }
+    
+    async function loadDashboardPredictions() {
+        const container = document.getElementById('dashboard-predictions-container');
+        
+        try {
+            const predictions = await mlAPI.getPredictions();
+            updateDashboardPredictions(predictions);
+        } catch (error) {
+            container.innerHTML = '<div class="text-center py-4 text-red-500"><p>Failed to load predictions</p></div>';
+        }
+    }
+    
+    function updateDashboardPredictions(predictions) {
+        const container = document.getElementById('dashboard-predictions-container');
+        
+        if (predictions.length === 0) {
+            container.innerHTML = '<div class="text-center py-4 text-gray-500"><p>No predictions yet. Start your first analysis!</p></div>';
+            return;
+        }
+        
+        // Show only the 3 most recent predictions
+        const recentPredictions = predictions.slice(0, 3);
+        
+        const html = '<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">' +
+            recentPredictions.map(pred => `
+                <div class="bg-white rounded-lg shadow p-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm font-medium text-gray-500">${new Date(pred.created_at).toLocaleDateString()}</span>
+                        <span class="px-2 py-1 text-xs font-medium rounded-full ${
+                            pred.prediction === 'Benign' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                        }">
+                            ${pred.prediction}
+                        </span>
+                    </div>
+                    <div class="text-sm text-gray-600">
+                        <p>Confidence: ${(pred.confidence * 100).toFixed(1)}%</p>
+                        <p>Risk Level: ${pred.risk_level}</p>
+                    </div>
+                </div>
+            `).join('') + '</div>';
+        
+        container.innerHTML = html;
+    }
+});
+</script>
