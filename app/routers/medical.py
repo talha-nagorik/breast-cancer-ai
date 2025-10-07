@@ -21,7 +21,8 @@ templates = Jinja2Templates(directory="templates")
 @router.get("/dashboard",
             response_class=HTMLResponse,
             summary="Medical Dashboard",
-            description="Main dashboard for medical records and health information")
+            description="Main dashboard for medical records and health information",
+            name="dashboard")
 async def dashboard(request: Request, user: User | None = Depends(get_current_user), session: Session = Depends(get_session)):
     """
     Medical dashboard page.
@@ -30,7 +31,7 @@ async def dashboard(request: Request, user: User | None = Depends(get_current_us
     and health statistics for the authenticated user.
     """
     if not user:
-        return RedirectResponse(url="/signup")
+        return RedirectResponse(url="/users/signup")
 
     # Get user's medical records and family history
     medical_records = session.exec(select(MedicalRecord).where(
@@ -96,7 +97,7 @@ async def add_record(
     session: Session = Depends(get_session)
 ):
     if not user:
-        return RedirectResponse(url="/signup")
+        return RedirectResponse(url="/users/signup")
 
     try:
         # Try to get JSON data first (for AJAX requests)
@@ -125,7 +126,7 @@ async def add_record(
                 raise HTTPException(
                     status_code=400, detail="Missing required fields")
             else:
-                return RedirectResponse(url="/dashboard?error=missing_fields", status_code=303)
+                return RedirectResponse(url="/medical/dashboard?error=missing_fields", status_code=303)
 
         # Create new record
         new_record = MedicalRecord(
@@ -147,7 +148,7 @@ async def add_record(
             from fastapi.responses import JSONResponse
             return JSONResponse(content={"success": True, "message": "Record added successfully"})
         else:
-            return RedirectResponse(url="/dashboard", status_code=303)
+            return RedirectResponse(url="/medical/dashboard", status_code=303)
 
     except Exception as e:
         if request.headers.get("content-type", "").startswith("application/json"):
@@ -155,12 +156,12 @@ async def add_record(
             raise HTTPException(
                 status_code=500, detail=f"Failed to add record: {str(e)}")
         else:
-            return RedirectResponse(url="/dashboard?error=add_failed", status_code=303)
+            return RedirectResponse(url="/medical/dashboard?error=add_failed", status_code=303)
 
 # Update profile
 
 
-@router.post("/update_profile")
+@router.post("/update_profile", name="update_profile")
 async def update_profile(
     request: Request,
     full_name: str = Form(...),
@@ -173,7 +174,7 @@ async def update_profile(
     session: Session = Depends(get_session)
 ):
     if not user:
-        return RedirectResponse(url="/signup")
+        return RedirectResponse(url="/users/signup")
 
     # Update user data
     user.name = full_name
@@ -187,12 +188,12 @@ async def update_profile(
     session.add(user)
     session.commit()
 
-    return RedirectResponse(url="/dashboard", status_code=303)
+    return RedirectResponse(url="/medical/dashboard", status_code=303)
 
 # Update medical info
 
 
-@router.post("/update_medical_info")
+@router.post("/update_medical_info", name="update_medical_info")
 async def update_medical_info(
     request: Request,
     allergies: str = Form(...),
@@ -201,7 +202,7 @@ async def update_medical_info(
     session: Session = Depends(get_session)
 ):
     if not user:
-        return RedirectResponse(url="/signup")
+        return RedirectResponse(url="/users/signup")
 
     # Update medical info
     user.allergies = allergies
@@ -211,12 +212,12 @@ async def update_medical_info(
     session.add(user)
     session.commit()
 
-    return RedirectResponse(url="/dashboard", status_code=303)
+    return RedirectResponse(url="/medical/dashboard", status_code=303)
 
 # Add family member
 
 
-@router.post("/add_family_member")
+@router.post("/add_family_member", name="add_family_member")
 async def add_family_member(
     request: Request,
     relation: str = Form(...),
@@ -226,7 +227,7 @@ async def add_family_member(
     session: Session = Depends(get_session)
 ):
     if not user:
-        return RedirectResponse(url="/signup")
+        return RedirectResponse(url="/users/signup")
 
     # Add family member
     new_member = FamilyHistory(
@@ -239,12 +240,12 @@ async def add_family_member(
     session.add(new_member)
     session.commit()
 
-    return RedirectResponse(url="/dashboard", status_code=303)
+    return RedirectResponse(url="/medical/dashboard", status_code=303)
 
 # Remove family member
 
 
-@router.post("/remove_family_member")
+@router.post("/remove_family_member", name="remove_family_member")
 async def remove_family_member(
     request: Request,
     index: int = Form(...),
@@ -252,7 +253,7 @@ async def remove_family_member(
     session: Session = Depends(get_session)
 ):
     if not user:
-        return RedirectResponse(url="/signup")
+        return RedirectResponse(url="/users/signup")
 
     # Get family history records
     family_history = session.exec(select(FamilyHistory).where(
@@ -264,7 +265,7 @@ async def remove_family_member(
         session.delete(member_to_remove)
         session.commit()
 
-    return RedirectResponse(url="/dashboard", status_code=303)
+    return RedirectResponse(url="/medical/dashboard", status_code=303)
 
 # API endpoints for AJAX requests
 

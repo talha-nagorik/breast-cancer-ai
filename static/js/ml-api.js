@@ -31,7 +31,7 @@ const mlAPI = {
     // Train the model
     trainModel: async function() {
         try {
-            const response = await apiRequest('/api/train-model', {
+            const response = await apiRequest('/ml/api/train-model', {
                 method: 'POST',
                 body: JSON.stringify({})
             });
@@ -45,7 +45,7 @@ const mlAPI = {
     // Make prediction via JSON API
     predict: async function(features) {
         try {
-            const response = await apiRequest('/api/predict', {
+            const response = await apiRequest('/ml/api/predict', {
                 method: 'POST',
                 body: JSON.stringify({ features })
             });
@@ -59,7 +59,7 @@ const mlAPI = {
     // Get user's prediction history
     getPredictions: async function() {
         try {
-            const response = await apiRequest('/api/predictions', {
+            const response = await apiRequest('/ml/api/predictions', {
                 method: 'GET'
             });
             return response;
@@ -72,7 +72,7 @@ const mlAPI = {
     // Get feature importance
     getFeatureImportance: async function() {
         try {
-            const response = await apiRequest('/api/feature-importance', {
+            const response = await apiRequest('/ml/api/feature-importance', {
                 method: 'GET'
             });
             return response;

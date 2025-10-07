@@ -73,7 +73,8 @@ templates = Jinja2Templates(directory="templates")
 @router.get("/signup",
             response_class=HTMLResponse,
             summary="User Signup Page",
-            description="Registration page for new users")
+            description="Registration page for new users",
+            name="signup_form")
 async def signup_form(request: Request, user: User | None = Depends(get_current_user)):
     """
     User signup page.
@@ -82,7 +83,7 @@ async def signup_form(request: Request, user: User | None = Depends(get_current_
     Redirects authenticated users to the dashboard.
     """
     if user:
-        return RedirectResponse(url="/dashboard")
+        return RedirectResponse(url="/medical/dashboard")
 
     return templates.TemplateResponse("signup.html", {
         "request": request,
@@ -95,7 +96,8 @@ async def signup_form(request: Request, user: User | None = Depends(get_current_
 @router.get("/login",
             response_class=HTMLResponse,
             summary="User Login Page",
-            description="Login page for existing users")
+            description="Login page for existing users",
+            name="login_form")
 async def login_form(request: Request, user: User | None = Depends(get_current_user)):
     """
     User login page.
@@ -104,7 +106,7 @@ async def login_form(request: Request, user: User | None = Depends(get_current_u
     Redirects authenticated users to the dashboard.
     """
     if user:
-        return RedirectResponse(url="/dashboard")
+        return RedirectResponse(url="/medical/dashboard")
 
     return templates.TemplateResponse("login.html", {
         "request": request,
@@ -180,7 +182,7 @@ async def signup_submit(
     session.commit()
     session.refresh(user_session)
 
-    response = RedirectResponse(url="/dashboard", status_code=303)
+    response = RedirectResponse(url="/medical/dashboard", status_code=303)
     response.set_cookie(key="session_id", value=user_session.id)
     return response
 
@@ -213,7 +215,7 @@ async def login_submit(
         session.commit()
         session.refresh(user_session)
 
-        response = RedirectResponse(url="/dashboard", status_code=303)
+        response = RedirectResponse(url="/medical/dashboard", status_code=303)
         response.set_cookie(key="session_id", value=user_session.id)
         return response
     else:
@@ -228,7 +230,8 @@ async def login_submit(
 
 @router.get("/logout",
             summary="User Logout",
-            description="Logout user and clear session")
+            description="Logout user and clear session",
+            name="logout")
 async def logout():
     """
     User logout.

@@ -6,7 +6,7 @@
         <h2 class="text-2xl font-bold text-gray-900">Breast Cancer Analysis</h2>
         <p class="text-gray-600 mt-1">AI-powered risk assessment using the Wisconsin dataset</p>
       </div>
-      <a href="/breast-cancer-analysis" 
+      <a href="{{ url_for('breast_cancer_analysis') }}" 
          class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
         Start New Analysis
       </a>
@@ -71,7 +71,7 @@
 
     <!-- Action Buttons -->
     <div class="mt-6 flex flex-col sm:flex-row gap-4">
-      <a href="/breast-cancer-analysis" 
+      <a href="{{ url_for('breast_cancer_analysis') }}" 
          class="flex-1 bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors text-center">
         Start New Analysis
       </a>

@@ -449,7 +449,8 @@ async def get_wisconsin_feature_importance(
 @router.get("/analytics",
             response_class=HTMLResponse,
             summary="Wisconsin Analytics Dashboard",
-            description="Interactive dashboard for Wisconsin dataset analytics and model performance")
+            description="Interactive dashboard for Wisconsin dataset analytics and model performance",
+            name="wisconsin_analytics")
 async def wisconsin_analytics_dashboard(
     request: Request,
     user: User | None = Depends(get_current_user),
@@ -462,7 +463,7 @@ async def wisconsin_analytics_dashboard(
     ensemble model status, feature analysis, and user prediction history.
     """
     if not user:
-        return RedirectResponse(url="/signup")
+        return RedirectResponse(url="/users/signup")
 
     try:
         # Get dataset statistics
@@ -512,7 +513,8 @@ async def wisconsin_analytics_dashboard(
 @router.get("/prediction",
             response_class=HTMLResponse,
             summary="Wisconsin Prediction Form",
-            description="Smart prediction form for Wisconsin Breast Cancer Dataset analysis")
+            description="Smart prediction form for Wisconsin Breast Cancer Dataset analysis",
+            name="wisconsin_prediction")
 async def wisconsin_prediction_form(
     request: Request,
     user: User | None = Depends(get_current_user)
@@ -524,7 +526,7 @@ async def wisconsin_prediction_form(
     with real-time validation, contextual help, and feature descriptions.
     """
     if not user:
-        return RedirectResponse(url="/signup")
+        return RedirectResponse(url="/users/signup")
 
     try:
         # Get feature information for the form
@@ -569,7 +571,7 @@ async def submit_wisconsin_prediction(
     makes predictions using the ensemble model, and returns results.
     """
     if not user:
-        return RedirectResponse(url="/signup")
+        return RedirectResponse(url="/users/signup")
 
     try:
         # Extract form data

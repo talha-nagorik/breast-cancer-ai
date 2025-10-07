@@ -185,7 +185,8 @@ async def get_feature_importance(
 @router.get("/breast-cancer-analysis",
             response_class=HTMLResponse,
             summary="Breast Cancer Analysis Page",
-            description="Interactive page for breast cancer analysis and predictions")
+            description="Interactive page for breast cancer analysis and predictions",
+            name="breast_cancer_analysis")
 async def breast_cancer_analysis(
     request: Request,
     user: User | None = Depends(get_current_user),
@@ -198,7 +199,7 @@ async def breast_cancer_analysis(
     prediction forms, feature importance visualization, and prediction history.
     """
     if not user:
-        return RedirectResponse(url="/signup")
+        return RedirectResponse(url="/users/signup")
 
     # Get user's recent predictions
     recent_predictions = session.exec(
@@ -242,7 +243,7 @@ async def submit_prediction(
     makes predictions using the trained model, and returns results.
     """
     if not user:
-        return RedirectResponse(url="/signup")
+        return RedirectResponse(url="/users/signup")
 
     # Extract form data (you'll need to create the form fields)
     form_data = await request.form()
